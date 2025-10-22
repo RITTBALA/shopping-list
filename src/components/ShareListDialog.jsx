@@ -15,11 +15,15 @@ import {
   ListItem,
   ListItemText,
   IconButton,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { getUserByEmail, addMemberToList, removeMemberFromList, getUserById } from '../firebase/firestoreService';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import { getUserByEmail, addMemberToList, removeMemberFromList, getUserById, getGroup } from '../firebase/firestoreService';
 import { useAuth } from '../context/AuthContext';
+import GroupPicker from './GroupPicker';
 
 const ShareListDialog = ({ open, onClose, list }) => {
   const [email, setEmail] = useState('');
@@ -28,6 +32,8 @@ const ShareListDialog = ({ open, onClose, list }) => {
   const [success, setSuccess] = useState('');
   const [members, setMembers] = useState([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
+  const [shareMode, setShareMode] = useState(0); // 0 = Individual, 1 = Group
+  const [selectedGroup, setSelectedGroup] = useState('');
   const { currentUser } = useAuth();
 
   // Load member details when dialog opens
@@ -101,6 +107,50 @@ const ShareListDialog = ({ open, onClose, list }) => {
     } catch (err) {
       console.error('Error sharing list:', err);
       setError('Failed to share list. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleShareWithGroup = async () => {
+    setError('');
+    setSuccess('');
+
+    if (!selectedGroup) {
+      setError('Please select a group.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const group = await getGroup(selectedGroup);
+      
+      if (!group || !group.memberUids) {
+        setError('Group not found.');
+        setLoading(false);
+        return;
+      }
+
+      let addedCount = 0;
+      for (const uid of group.memberUids) {
+        if (!list.members.includes(uid)) {
+          await addMemberToList(list.id, uid);
+          addedCount++;
+        }
+      }
+
+      if (addedCount > 0) {
+        setSuccess(`Successfully shared with ${addedCount} member(s) from the group!`);
+      } else {
+        setSuccess('All group members already have access to this list.');
+      }
+      
+      setSelectedGroup('');
+      await loadMembers();
+    } catch (err) {
+      console.error('Error sharing with group:', err);
+      setError('Failed to share with group. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -190,12 +240,31 @@ const ShareListDialog = ({ open, onClose, list }) => {
           </Alert>
         )}
 
-        <Box component="form" onSubmit={handleShare} sx={{ mb: 3 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            💌 Enter the email address of the person you want to share this list with:
-          </Typography>
-          
-          <Box sx={{ display: 'flex', gap: 1.5 }}>
+        {/* Share Mode Tabs */}
+        <Box sx={{ mb: 3 }}>
+          <Tabs 
+            value={shareMode} 
+            onChange={(e, newValue) => setShareMode(newValue)}
+            variant="fullWidth"
+            sx={{
+              '& .MuiTab-root': {
+                fontWeight: 'bold',
+              },
+            }}
+          >
+            <Tab label="Share with Individual" icon={<PersonAddIcon />} iconPosition="start" />
+            <Tab label="Share with Group" icon={<GroupAddIcon />} iconPosition="start" />
+          </Tabs>
+        </Box>
+
+        {/* Individual Share Mode */}
+        {shareMode === 0 && (
+          <Box component="form" onSubmit={handleShare} sx={{ mb: 3 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              💌 Enter the email address of the person you want to share this list with:
+            </Typography>
+            
+            <Box sx={{ display: 'flex', gap: 1.5 }}>
             <TextField
               fullWidth
               label="Email Address"
@@ -242,7 +311,50 @@ const ShareListDialog = ({ open, onClose, list }) => {
               Add
             </Button>
           </Box>
-        </Box>
+          </Box>
+        )}
+
+        {/* Group Share Mode */}
+        {shareMode === 1 && (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              👥 Select a group to share this list with all its members:
+            </Typography>
+            
+            <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end' }}>
+              <Box sx={{ flexGrow: 1 }}>
+                <GroupPicker 
+                  value={selectedGroup}
+                  onChange={setSelectedGroup}
+                />
+              </Box>
+              <Button
+                variant="contained"
+                disabled={loading || !selectedGroup || selectedGroup === 'just-me'}
+                startIcon={loading ? <CircularProgress size={20} /> : <GroupAddIcon />}
+                onClick={handleShareWithGroup}
+                sx={{
+                  borderRadius: '12px',
+                  px: 3,
+                  py: 1.9,
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  boxShadow: '0 4px 15px 0 rgba(102, 126, 234, 0.4)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
+                    boxShadow: '0 6px 20px 0 rgba(102, 126, 234, 0.5)',
+                  },
+                  '&:disabled': {
+                    background: 'rgba(0, 0, 0, 0.12)',
+                    color: 'rgba(0, 0, 0, 0.26)',
+                  },
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Share
+              </Button>
+            </Box>
+          </Box>
+        )}
 
         <Typography 
           variant="subtitle2" 

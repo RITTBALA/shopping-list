@@ -15,10 +15,18 @@ import {
   Paper,
   Typography,
   Alert,
+  IconButton,
+  Tabs,
+  Tab,
+  List,
+  ListItem,
+  ListItemText,
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../context/AuthContext';
-import { createList, getGroup } from '../firebase/firestoreService';
+import { createList, getGroup, getUserByEmail } from '../firebase/firestoreService';
 import GroupPicker from './GroupPicker';
 
 const ICON_OPTIONS = [
@@ -48,6 +56,9 @@ const CreateListDialog = ({ open, onClose }) => {
   const [icon, setIcon] = useState('ShoppingCart');
   const [color, setColor] = useState('#e3f2fd');
   const [selectedGroup, setSelectedGroup] = useState('just-me');
+  const [shareMode, setShareMode] = useState(0); // 0 = Group, 1 = Individual
+  const [individualMembers, setIndividualMembers] = useState([]);
+  const [newMemberEmail, setNewMemberEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
@@ -66,11 +77,19 @@ const CreateListDialog = ({ open, onClose }) => {
     try {
       let members = [currentUser.uid]; // Default to just the current user
 
-      // If a group is selected, get its members
-      if (selectedGroup !== 'just-me') {
-        const group = await getGroup(selectedGroup);
-        if (group && group.memberUids) {
-          members = group.memberUids;
+      // Determine members based on share mode
+      if (shareMode === 0) {
+        // Group mode
+        if (selectedGroup !== 'just-me') {
+          const group = await getGroup(selectedGroup);
+          if (group && group.memberUids) {
+            members = group.memberUids;
+          }
+        }
+      } else {
+        // Individual mode
+        if (individualMembers.length > 0) {
+          members = [currentUser.uid, ...individualMembers.map(m => m.uid)];
         }
       }
 
@@ -89,6 +108,9 @@ const CreateListDialog = ({ open, onClose }) => {
       setIcon('ShoppingCart');
       setColor('#e3f2fd');
       setSelectedGroup('just-me');
+      setIndividualMembers([]);
+      setNewMemberEmail('');
+      setShareMode(0);
       onClose();
     } catch (err) {
       setError('Failed to create list. Please try again.');
@@ -98,11 +120,54 @@ const CreateListDialog = ({ open, onClose }) => {
     }
   };
 
+  const handleAddIndividualMember = async () => {
+    setError('');
+    
+    if (!newMemberEmail.trim()) {
+      setError('Please enter an email address');
+      return;
+    }
+
+    if (newMemberEmail.toLowerCase() === currentUser.email.toLowerCase()) {
+      setError('You are already added to this list');
+      setNewMemberEmail('');
+      return;
+    }
+
+    try {
+      const user = await getUserByEmail(newMemberEmail.trim());
+      
+      if (!user) {
+        setError('User not found with this email');
+        return;
+      }
+
+      if (individualMembers.some(m => m.uid === user.uid)) {
+        setError('User is already added');
+        return;
+      }
+
+      setIndividualMembers([...individualMembers, { uid: user.uid, email: user.email }]);
+      setNewMemberEmail('');
+    } catch (err) {
+      console.error('Error adding member:', err);
+      setError('Failed to add member');
+    }
+  };
+
+  const handleRemoveIndividualMember = (uid) => {
+    setIndividualMembers(individualMembers.filter(m => m.uid !== uid));
+  };
+
   const handleClose = () => {
     if (!loading) {
       setListName('');
       setIcon('ShoppingCart');
       setColor('#e3f2fd');
+      setSelectedGroup('just-me');
+      setIndividualMembers([]);
+      setNewMemberEmail('');
+      setShareMode(0);
       setError('');
       onClose();
     }
@@ -152,10 +217,100 @@ const CreateListDialog = ({ open, onClose }) => {
             </Select>
           </FormControl>
 
-          <GroupPicker 
-            value={selectedGroup}
-            onChange={setSelectedGroup}
-          />
+          {/* Share Mode Tabs */}
+          <Box sx={{ mt: 3, mb: 2 }}>
+            <Tabs 
+              value={shareMode} 
+              onChange={(e, newValue) => setShareMode(newValue)}
+              variant="fullWidth"
+              sx={{
+                '& .MuiTab-root': {
+                  fontWeight: 'bold',
+                },
+              }}
+            >
+              <Tab label="Share with Group" />
+              <Tab label="Share with Individuals" />
+            </Tabs>
+          </Box>
+
+          {/* Group Mode */}
+          {shareMode === 0 && (
+            <GroupPicker 
+              value={selectedGroup}
+              onChange={setSelectedGroup}
+            />
+          )}
+
+          {/* Individual Mode */}
+          {shareMode === 1 && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                Add People by Email
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <TextField
+                  size="small"
+                  label="Email address"
+                  fullWidth
+                  value={newMemberEmail}
+                  onChange={(e) => setNewMemberEmail(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddIndividualMember();
+                    }
+                  }}
+                />
+                <IconButton
+                  color="primary"
+                  onClick={handleAddIndividualMember}
+                  sx={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    '&:hover': {
+                      opacity: 0.9,
+                    },
+                  }}
+                >
+                  <AddIcon />
+                </IconButton>
+              </Box>
+
+              {individualMembers.length > 0 && (
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Added members ({individualMembers.length})
+                  </Typography>
+                  <List sx={{ maxHeight: 150, overflow: 'auto' }}>
+                    {individualMembers.map((member) => (
+                      <ListItem
+                        key={member.uid}
+                        secondaryAction={
+                          <IconButton edge="end" onClick={() => handleRemoveIndividualMember(member.uid)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        }
+                        sx={{
+                          borderRadius: 2,
+                          mb: 1,
+                          bgcolor: 'rgba(102, 126, 234, 0.05)',
+                        }}
+                      >
+                        <ListItemText primary={member.email} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              )}
+
+              {individualMembers.length === 0 && (
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                  No members added. The list will only be visible to you.
+                </Typography>
+              )}
+            </Box>
+          )}
 
           <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
             Color
