@@ -19,6 +19,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import PaletteIcon from '@mui/icons-material/Palette';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import GroupIcon from '@mui/icons-material/Group';
 import { useAuth } from '../context/AuthContext';
 import { useTheme as useCustomTheme } from '../context/ThemeContext';
 import { subscribeToUserLists } from '../firebase/firestoreService';
@@ -225,6 +226,23 @@ const DashboardPage = () => {
               tooltipTitle="Add List"
               onClick={() => {
                 setOpenDialog(true);
+                setSpeedDialOpen(false);
+              }}
+              sx={{
+                '& .MuiSpeedDialAction-fab': {
+                  background: currentTheme.gradient,
+                  color: 'white',
+                  '&:hover': {
+                    opacity: 0.9,
+                  },
+                },
+              }}
+            />
+            <SpeedDialAction
+              icon={<GroupIcon />}
+              tooltipTitle="Manage Groups"
+              onClick={() => {
+                navigate('/groups');
                 setSpeedDialOpen(false);
               }}
               sx={{

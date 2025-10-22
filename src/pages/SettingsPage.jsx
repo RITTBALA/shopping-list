@@ -21,6 +21,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import GroupIcon from '@mui/icons-material/Group';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme as useCustomTheme } from '../context/ThemeContext';
@@ -275,6 +276,41 @@ const SettingsPage = () => {
               />
             </ListItem>
           </List>
+
+          <Divider sx={{ my: 3 }} />
+
+          <Typography 
+            variant="h6" 
+            sx={{ 
+              mb: 2,
+              fontWeight: 600,
+              color: '#667eea',
+            }}
+          >
+            👥 Groups
+          </Typography>
+
+          <Box sx={{ mt: 2, mb: 3 }}>
+            <Button
+              variant="outlined"
+              startIcon={<GroupIcon />}
+              onClick={() => navigate('/groups')}
+              fullWidth
+              sx={{
+                py: 1.5,
+                borderRadius: '12px',
+                borderColor: '#667eea',
+                color: '#667eea',
+                fontWeight: 600,
+                '&:hover': {
+                  borderColor: '#5568d3',
+                  backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                },
+              }}
+            >
+              Manage My Groups
+            </Button>
+          </Box>
 
           <Divider sx={{ my: 3 }} />
 

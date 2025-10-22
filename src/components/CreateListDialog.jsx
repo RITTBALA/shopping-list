@@ -18,7 +18,8 @@ import {
 } from '@mui/material';
 import * as Icons from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
-import { createList } from '../firebase/firestoreService';
+import { createList, getGroup } from '../firebase/firestoreService';
+import GroupPicker from './GroupPicker';
 
 const ICON_OPTIONS = [
   { value: 'ShoppingCart', label: 'Shopping Cart', icon: Icons.ShoppingCart },
@@ -46,6 +47,7 @@ const CreateListDialog = ({ open, onClose }) => {
   const [listName, setListName] = useState('');
   const [icon, setIcon] = useState('ShoppingCart');
   const [color, setColor] = useState('#e3f2fd');
+  const [selectedGroup, setSelectedGroup] = useState('just-me');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
@@ -62,11 +64,22 @@ const CreateListDialog = ({ open, onClose }) => {
     setLoading(true);
 
     try {
+      let members = [currentUser.uid]; // Default to just the current user
+
+      // If a group is selected, get its members
+      if (selectedGroup !== 'just-me') {
+        const group = await getGroup(selectedGroup);
+        if (group && group.memberUids) {
+          members = group.memberUids;
+        }
+      }
+
       await createList(
         {
           listName: listName.trim(),
           icon,
           color,
+          members, // Pass the members array
         },
         currentUser.uid
       );
@@ -75,6 +88,7 @@ const CreateListDialog = ({ open, onClose }) => {
       setListName('');
       setIcon('ShoppingCart');
       setColor('#e3f2fd');
+      setSelectedGroup('just-me');
       onClose();
     } catch (err) {
       setError('Failed to create list. Please try again.');
@@ -137,6 +151,11 @@ const CreateListDialog = ({ open, onClose }) => {
               })}
             </Select>
           </FormControl>
+
+          <GroupPicker 
+            value={selectedGroup}
+            onChange={setSelectedGroup}
+          />
 
           <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
             Color

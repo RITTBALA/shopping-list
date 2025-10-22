@@ -30,8 +30,9 @@ export const createList = async (listData, userId) => {
       color: listData.color,
       createdAt: serverTimestamp(),
       creatorId: userId,
-      members: [userId], // Creator is automatically a member
-      status: 'active'
+      members: listData.members || [userId], // Use provided members or default to just creator
+      status: 'active',
+      isArchived: false
     });
     return listRef.id;
   } catch (error) {
@@ -269,6 +270,90 @@ export const deleteListWithItems = async (listId) => {
     await batch.commit();
   } catch (error) {
     console.error('Error deleting list with items:', error);
+    throw error;
+  }
+};
+
+// ==================== GROUPS ====================
+
+/**
+ * Get all groups owned by a user (real-time listener)
+ */
+export const getGroupsForUser = (userId, callback) => {
+  const groupsQuery = query(
+    collection(db, 'groups'),
+    where('ownerId', '==', userId)
+  );
+
+  return onSnapshot(groupsQuery, (snapshot) => {
+    const groups = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    callback(groups);
+  }, (error) => {
+    console.error('Error fetching groups:', error);
+    callback([]);
+  });
+};
+
+/**
+ * Create a new group
+ */
+export const createGroup = async (groupName, ownerId) => {
+  try {
+    const groupRef = await addDoc(collection(db, 'groups'), {
+      groupName,
+      ownerId,
+      memberUids: [ownerId], // Owner is automatically a member
+      createdAt: serverTimestamp()
+    });
+    return groupRef.id;
+  } catch (error) {
+    console.error('Error creating group:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update group members
+ */
+export const updateGroupMembers = async (groupId, newMemberUids) => {
+  try {
+    const groupRef = doc(db, 'groups', groupId);
+    await updateDoc(groupRef, {
+      memberUids: newMemberUids
+    });
+  } catch (error) {
+    console.error('Error updating group members:', error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a group
+ */
+export const deleteGroup = async (groupId) => {
+  try {
+    await deleteDoc(doc(db, 'groups', groupId));
+  } catch (error) {
+    console.error('Error deleting group:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get a single group by ID
+ */
+export const getGroup = async (groupId) => {
+  try {
+    const groupDoc = await getDoc(doc(db, 'groups', groupId));
+    if (groupDoc.exists()) {
+      return { id: groupDoc.id, ...groupDoc.data() };
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching group:', error);
     throw error;
   }
 };

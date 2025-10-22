@@ -9,6 +9,7 @@ import DashboardPage from './pages/DashboardPage';
 import ListPage from './pages/ListPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
+import GroupsPage from './pages/GroupsPage';
 
 function App() {
   return (
@@ -39,6 +40,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/groups"
+            element={
+              <ProtectedRoute>
+                <GroupsPage />
               </ProtectedRoute>
             }
           />
