@@ -31,6 +31,7 @@ export const createList = async (listData, userId) => {
       createdAt: serverTimestamp(),
       creatorId: userId,
       members: listData.members || [userId], // Use provided members or default to just creator
+      linkedGroupId: listData.linkedGroupId || null, // Track if list is linked to a group
       status: 'active',
       isArchived: false
     });
@@ -124,6 +125,42 @@ export const removeMemberFromList = async (listId, memberUid) => {
     });
   } catch (error) {
     console.error('Error removing member from list:', error);
+    throw error;
+  }
+};
+
+/**
+ * Link a list to a group and add all group members
+ */
+export const linkListToGroup = async (listId, groupId) => {
+  try {
+    const group = await getGroup(groupId);
+    if (!group || !group.memberUids) {
+      throw new Error('Group not found');
+    }
+
+    const listRef = doc(db, 'lists', listId);
+    await updateDoc(listRef, {
+      linkedGroupId: groupId,
+      members: arrayUnion(...group.memberUids)
+    });
+  } catch (error) {
+    console.error('Error linking list to group:', error);
+    throw error;
+  }
+};
+
+/**
+ * Unlink a list from a group
+ */
+export const unlinkListFromGroup = async (listId) => {
+  try {
+    const listRef = doc(db, 'lists', listId);
+    await updateDoc(listRef, {
+      linkedGroupId: null
+    });
+  } catch (error) {
+    console.error('Error unlinking list from group:', error);
     throw error;
   }
 };

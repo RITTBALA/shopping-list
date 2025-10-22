@@ -76,6 +76,7 @@ const CreateListDialog = ({ open, onClose }) => {
 
     try {
       let members = [currentUser.uid]; // Default to just the current user
+      let linkedGroupId = null; // Track if list is linked to a group
 
       // Determine members based on share mode
       if (shareMode === 0) {
@@ -84,6 +85,7 @@ const CreateListDialog = ({ open, onClose }) => {
           const group = await getGroup(selectedGroup);
           if (group && group.memberUids) {
             members = group.memberUids;
+            linkedGroupId = selectedGroup; // Link the list to this group
           }
         }
       } else {
@@ -99,6 +101,7 @@ const CreateListDialog = ({ open, onClose }) => {
           icon,
           color,
           members, // Pass the members array
+          linkedGroupId, // Pass the linked group ID
         },
         currentUser.uid
       );

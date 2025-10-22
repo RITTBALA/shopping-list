@@ -21,7 +21,8 @@ import {
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import DeleteIcon from '@mui/icons-material/Delete';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import { getUserByEmail, addMemberToList, removeMemberFromList, getUserById, getGroup } from '../firebase/firestoreService';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
+import { getUserByEmail, addMemberToList, removeMemberFromList, getUserById, getGroup, linkListToGroup, unlinkListFromGroup } from '../firebase/firestoreService';
 import { useAuth } from '../context/AuthContext';
 import GroupPicker from './GroupPicker';
 
@@ -34,12 +35,14 @@ const ShareListDialog = ({ open, onClose, list }) => {
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [shareMode, setShareMode] = useState(0); // 0 = Individual, 1 = Group
   const [selectedGroup, setSelectedGroup] = useState('');
+  const [linkedGroup, setLinkedGroup] = useState(null);
   const { currentUser } = useAuth();
 
   // Load member details when dialog opens
   useEffect(() => {
     if (open && list?.members) {
       loadMembers();
+      loadLinkedGroup();
     }
   }, [open, list]);
 
@@ -53,6 +56,19 @@ const ShareListDialog = ({ open, onClose, list }) => {
       console.error('Error loading members:', err);
     } finally {
       setLoadingMembers(false);
+    }
+  };
+
+  const loadLinkedGroup = async () => {
+    if (list?.linkedGroupId) {
+      try {
+        const group = await getGroup(list.linkedGroupId);
+        setLinkedGroup(group);
+      } catch (err) {
+        console.error('Error loading linked group:', err);
+      }
+    } else {
+      setLinkedGroup(null);
     }
   };
 
@@ -124,28 +140,10 @@ const ShareListDialog = ({ open, onClose, list }) => {
     setLoading(true);
 
     try {
-      const group = await getGroup(selectedGroup);
+      // Use the new linkListToGroup function
+      await linkListToGroup(list.id, selectedGroup);
       
-      if (!group || !group.memberUids) {
-        setError('Group not found.');
-        setLoading(false);
-        return;
-      }
-
-      let addedCount = 0;
-      for (const uid of group.memberUids) {
-        if (!list.members.includes(uid)) {
-          await addMemberToList(list.id, uid);
-          addedCount++;
-        }
-      }
-
-      if (addedCount > 0) {
-        setSuccess(`Successfully shared with ${addedCount} member(s) from the group!`);
-      } else {
-        setSuccess('All group members already have access to this list.');
-      }
-      
+      setSuccess('Successfully linked list to group! All current and future group members will have access.');
       setSelectedGroup('');
       await loadMembers();
     } catch (err) {
@@ -167,6 +165,19 @@ const ShareListDialog = ({ open, onClose, list }) => {
       return;
     }
 
+    // Check if list is linked to a group
+    if (list.linkedGroupId) {
+      try {
+        const group = await getGroup(list.linkedGroupId);
+        if (group && group.memberUids && group.memberUids.includes(memberUid)) {
+          setError('Cannot remove this member because they are part of the linked group. To remove them, either remove them from the group or unlink this list from the group.');
+          return;
+        }
+      } catch (err) {
+        console.error('Error checking group membership:', err);
+      }
+    }
+
     try {
       await removeMemberFromList(list.id, memberUid);
       setSuccess('Member removed successfully.');
@@ -174,6 +185,22 @@ const ShareListDialog = ({ open, onClose, list }) => {
     } catch (err) {
       console.error('Error removing member:', err);
       setError('Failed to remove member.');
+    }
+  };
+
+  const handleUnlinkGroup = async () => {
+    if (!window.confirm('Are you sure you want to unlink this list from the group? Current members will stay, but new group members won\'t be automatically added.')) {
+      return;
+    }
+
+    try {
+      await unlinkListFromGroup(list.id);
+      setSuccess('List unlinked from group successfully.');
+      setLinkedGroup(null);
+      await loadLinkedGroup();
+    } catch (err) {
+      console.error('Error unlinking from group:', err);
+      setError('Failed to unlink from group.');
     }
   };
 
@@ -208,6 +235,37 @@ const ShareListDialog = ({ open, onClose, list }) => {
         🔗 Share "{list?.listName}"
       </DialogTitle>
       <DialogContent sx={{ pt: 2 }}>
+        {/* Linked Group Info */}
+        {linkedGroup && (
+          <Alert
+            severity="info"
+            sx={{
+              mb: 2,
+              borderRadius: '12px',
+              backgroundColor: 'rgba(102, 126, 234, 0.1)',
+              color: '#667eea',
+              border: '1px solid rgba(102, 126, 234, 0.3)',
+            }}
+            action={
+              <Button
+                size="small"
+                startIcon={<LinkOffIcon />}
+                onClick={handleUnlinkGroup}
+                sx={{
+                  color: '#667eea',
+                  '&:hover': {
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                  },
+                }}
+              >
+                Unlink
+              </Button>
+            }
+          >
+            🔗 This list is linked to group "{linkedGroup.groupName}". Group members cannot be removed individually.
+          </Alert>
+        )}
+
         {error && (
           <Alert 
             severity="error" 
@@ -378,7 +436,9 @@ const ShareListDialog = ({ open, onClose, list }) => {
             borderRadius: '12px',
             p: 1,
           }}>
-            {members.map((member) => (
+            {members.map((member) => {
+              const isFromGroup = linkedGroup?.memberUids?.includes(member.uid);
+              return (
               <ListItem 
                 key={member.uid}
                 sx={{
@@ -425,10 +485,22 @@ const ShareListDialog = ({ open, onClose, list }) => {
                           }} 
                         />
                       )}
+                      {isFromGroup && (
+                        <Chip 
+                          label="From Group" 
+                          size="small" 
+                          sx={{ 
+                            height: '20px',
+                            fontSize: '0.7rem',
+                            backgroundColor: '#22c55e',
+                            color: 'white',
+                          }} 
+                        />
+                      )}
                     </Box>
                   }
                 />
-                {member.uid !== currentUser.uid && member.uid !== list?.creatorId && (
+                {member.uid !== currentUser.uid && member.uid !== list?.creatorId && !isFromGroup && (
                   <IconButton
                     edge="end"
                     onClick={() => handleRemoveMember(member.uid)}
@@ -447,7 +519,8 @@ const ShareListDialog = ({ open, onClose, list }) => {
                   </IconButton>
                 )}
               </ListItem>
-            ))}
+            );
+            })}
           </List>
         )}
 
