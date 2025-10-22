@@ -236,6 +236,13 @@ const DashboardPage = () => {
                   '&:hover': {
                     bgcolor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
                   },
+                  '&:focus': {
+                    outline: 'none',
+                  },
+                  '&:focus-visible': {
+                    outline: '2px solid #667eea',
+                    outlineOffset: '2px',
+                  },
                 },
               }}
             >

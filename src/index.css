@@ -51,6 +51,27 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
+/* Remove default focus outline on all interactive elements */
+button:focus,
+button:focus-visible,
+.MuiButton-root:focus,
+.MuiIconButton-root:focus,
+.MuiToggleButton-root:focus,
+.MuiTab-root:focus {
+  outline: none !important;
+}
+
+/* Optional: Add a subtle focus style only for keyboard navigation */
+button:focus-visible,
+.MuiButton-root:focus-visible,
+.MuiIconButton-root:focus-visible,
+.MuiToggleButton-root:focus-visible,
+.MuiTab-root:focus-visible {
+  outline: 2px solid rgba(102, 126, 234, 0.5) !important;
+  outline-offset: 2px !important;
+}
+
 button:hover {
   border-color: #646cff;
 }
