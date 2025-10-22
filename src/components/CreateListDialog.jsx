@@ -229,6 +229,9 @@ const CreateListDialog = ({ open, onClose }) => {
               sx={{
                 '& .MuiTab-root': {
                   fontWeight: 'bold',
+                  '&:focus': {
+                    outline: 'none',
+                  },
                 },
               }}
             >

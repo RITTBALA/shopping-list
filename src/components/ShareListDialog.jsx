@@ -307,6 +307,9 @@ const ShareListDialog = ({ open, onClose, list }) => {
             sx={{
               '& .MuiTab-root': {
                 fontWeight: 'bold',
+                '&:focus': {
+                  outline: 'none',
+                },
               },
             }}
           >
