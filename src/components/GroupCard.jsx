@@ -10,8 +10,11 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import GroupIcon from '@mui/icons-material/Group';
+import { useTheme } from '../context/ThemeContext';
 
 const GroupCard = ({ group, onEdit, onDelete }) => {
+  const { currentTheme } = useTheme();
+  
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to delete the group "${group.groupName}"? This will not delete any lists, but you won't be able to use this group for new lists.`)) {
       onDelete(group.id);
@@ -21,28 +24,28 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
   return (
     <Card
       sx={{
-        minHeight: 120,
+        minHeight: { xs: 140, sm: 160 },
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 3,
         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         border: '1px solid rgba(0,0,0,0.05)',
-        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
+        backgroundColor: 'white',
         '&:hover': {
-          boxShadow: '0 8px 24px rgba(102, 126, 234, 0.15)',
+          boxShadow: `0 8px 24px ${currentTheme.primary}26`,
           transform: 'translateY(-4px)',
         },
       }}
     >
-      <CardContent sx={{ flexGrow: 1, pb: 1 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+      <CardContent sx={{ flexGrow: 1, pb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Box
             sx={{
-              mr: 1.5,
-              p: 1,
+              mr: 2,
+              p: 1.5,
               borderRadius: 2,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: `${currentTheme.primary}15`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -50,8 +53,8 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
           >
             <GroupIcon 
               sx={{ 
-                fontSize: 32,
-                color: 'white'
+                fontSize: { xs: 32, sm: 40 },
+                color: currentTheme.primary,
               }} 
             />
           </Box>
@@ -60,45 +63,50 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
             component="div" 
             sx={{ 
               flexGrow: 1,
+              fontSize: { xs: '1rem', sm: '1.25rem' },
               fontWeight: 'bold',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              color: '#333',
             }}
           >
             {group.groupName}
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Chip 
-            label={`${group.memberUids?.length || 0} members`}
-            size="small"
-            sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              fontWeight: 600,
-            }}
-          />
-        </Box>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: '#666',
+            fontWeight: '500',
+            fontSize: { xs: '0.85rem', sm: '0.9rem' },
+          }}
+        >
+          👥 {group.memberUids?.length || 0} member{group.memberUids?.length !== 1 ? 's' : ''}
+        </Typography>
       </CardContent>
-      <CardActions sx={{ justifyContent: 'flex-end', pt: 0, pb: 1 }}>
+      <CardActions sx={{ justifyContent: 'flex-end', pt: 0, pb: 1.5, px: 2 }}>
         <IconButton
           size="small"
           onClick={() => onEdit(group)}
           aria-label="edit"
           sx={{ 
+            minWidth: { xs: 40, sm: 48 }, 
+            minHeight: { xs: 40, sm: 48 },
             '&:hover': {
-              bgcolor: 'rgba(102, 126, 234, 0.1)'
+              bgcolor: `${currentTheme.primary}15`,
             }
           }}
         >
-          <EditIcon fontSize="small" />
+          <EditIcon fontSize="small" sx={{ color: currentTheme.primary }} />
         </IconButton>
         <IconButton
           size="small"
           onClick={handleDelete}
           aria-label="delete"
           sx={{ 
+            minWidth: { xs: 40, sm: 48 }, 
+            minHeight: { xs: 40, sm: 48 },
             '&:hover': {
               bgcolor: 'rgba(245, 87, 108, 0.1)',
               color: '#f5576c',
