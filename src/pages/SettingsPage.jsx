@@ -367,16 +367,13 @@ const SettingsPage = () => {
               sx={{
                 py: 1.5,
                 borderRadius: '12px',
-                borderColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(102, 126, 234, 0.5)',
+                borderColor: currentTheme.primary,
                 color: currentTheme.primary,
                 fontWeight: 600,
                 '&:hover': {
                   borderColor: currentTheme.primary,
                   backgroundColor: `${currentTheme.primary}15`,
-                  transform: 'translateY(-2px)',
-                  boxShadow: `0 4px 12px ${currentTheme.primary}33`,
                 },
-                transition: 'all 0.3s ease',
               }}
             >
               Change Password
@@ -408,16 +405,13 @@ const SettingsPage = () => {
               sx={{
                 py: 1.5,
                 borderRadius: '12px',
-                borderColor: 'rgba(102, 126, 234, 0.5)',
-                color: '#667eea',
+                borderColor: currentTheme.primary,
+                color: currentTheme.primary,
                 fontWeight: 600,
                 '&:hover': {
-                  borderColor: '#667eea',
-                  backgroundColor: 'rgba(102, 126, 234, 0.05)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.2)',
+                  borderColor: currentTheme.primary,
+                  backgroundColor: `${currentTheme.primary}15`,
                 },
-                transition: 'all 0.3s ease',
               }}
             >
               Logout
@@ -432,20 +426,17 @@ const SettingsPage = () => {
               sx={{
                 py: 1.5,
                 borderRadius: '12px',
-                borderColor: 'rgba(239, 68, 68, 0.5)',
+                borderColor: '#ef4444',
                 color: '#ef4444',
                 fontWeight: 600,
                 '&:hover': {
                   borderColor: '#ef4444',
-                  backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(239, 68, 68, 0.2)',
+                  backgroundColor: 'rgba(239, 68, 68, 0.15)',
                 },
                 '&:disabled': {
                   borderColor: 'rgba(0, 0, 0, 0.12)',
                   color: 'rgba(0, 0, 0, 0.26)',
                 },
-                transition: 'all 0.3s ease',
               }}
             >
               {deleting ? 'Deleting Account...' : 'Delete Account'}
