@@ -42,20 +42,24 @@ const ICON_OPTIONS = [
 ];
 
 const COLOR_OPTIONS = [
-  { value: '#ffebee', label: 'Light Red' },
-  { value: '#e3f2fd', label: 'Light Blue' },
-  { value: '#e8f5e9', label: 'Light Green' },
-  { value: '#fff3e0', label: 'Light Orange' },
-  { value: '#f3e5f5', label: 'Light Purple' },
-  { value: '#fce4ec', label: 'Light Pink' },
-  { value: '#e0f7fa', label: 'Light Cyan' },
-  { value: '#fff9c4', label: 'Light Yellow' },
+  { value: '#FFE5E5', label: 'Soft Coral' },
+  { value: '#E8F4FD', label: 'Sky Blue' },
+  { value: '#E8F8F5', label: 'Mint Green' },
+  { value: '#FFF4E6', label: 'Peach' },
+  { value: '#F3E5F5', label: 'Lavender' },
+  { value: '#FCE4EC', label: 'Rose' },
+  { value: '#E0F2F1', label: 'Teal' },
+  { value: '#FFF9C4', label: 'Lemon' },
+  { value: '#F1F8E9', label: 'Lime' },
+  { value: '#EDE7F6', label: 'Violet' },
+  { value: '#E1F5FE', label: 'Ice Blue' },
+  { value: '#FBE9E7', label: 'Apricot' },
 ];
 
 const CreateListDialog = ({ open, onClose }) => {
   const [listName, setListName] = useState('');
   const [icon, setIcon] = useState('ShoppingCart');
-  const [color, setColor] = useState('#e3f2fd');
+  const [color, setColor] = useState('#E8F4FD');
   const [selectedGroup, setSelectedGroup] = useState('just-me');
   const [shareMode, setShareMode] = useState(0); // 0 = Group, 1 = Individual
   const [individualMembers, setIndividualMembers] = useState([]);
@@ -111,7 +115,7 @@ const CreateListDialog = ({ open, onClose }) => {
       // Reset form and close dialog
       setListName('');
       setIcon('ShoppingCart');
-      setColor('#e3f2fd');
+      setColor('#E8F4FD');
       setSelectedGroup('just-me');
       setIndividualMembers([]);
       setNewMemberEmail('');
@@ -168,7 +172,7 @@ const CreateListDialog = ({ open, onClose }) => {
     if (!loading) {
       setListName('');
       setIcon('ShoppingCart');
-      setColor('#e3f2fd');
+      setColor('#E8F4FD');
       setSelectedGroup('just-me');
       setIndividualMembers([]);
       setNewMemberEmail('');
