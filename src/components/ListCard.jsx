@@ -13,10 +13,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { deleteListWithItems } from '../firebase/firestoreService';
 import RenameListDialog from './RenameListDialog';
+import { useTheme } from '../context/ThemeContext';
 
 const ListCard = ({ list }) => {
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { currentTheme } = useTheme();
 
   const handleRename = (event) => {
     event.stopPropagation();
@@ -125,7 +127,7 @@ const ListCard = ({ list }) => {
             minWidth: { xs: 40, sm: 48 }, 
             minHeight: { xs: 40, sm: 48 },
             '&:hover': {
-              bgcolor: 'rgba(102, 126, 234, 0.1)'
+              bgcolor: `${currentTheme.primary}15`,
             }
           }}
         >
@@ -138,9 +140,9 @@ const ListCard = ({ list }) => {
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
             minHeight: { xs: 40, sm: 48 },
+            color: '#f5576c',
             '&:hover': {
               bgcolor: 'rgba(245, 87, 108, 0.1)',
-              color: '#f5576c',
             }
           }}
         >

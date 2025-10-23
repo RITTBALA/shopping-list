@@ -93,12 +93,13 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
             minHeight: { xs: 40, sm: 48 },
+            color: currentTheme.primary,
             '&:hover': {
               bgcolor: `${currentTheme.primary}15`,
             }
           }}
         >
-          <EditIcon fontSize="small" sx={{ color: currentTheme.primary }} />
+          <EditIcon fontSize="small" />
         </IconButton>
         <IconButton
           size="small"
@@ -107,9 +108,9 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
             minHeight: { xs: 40, sm: 48 },
+            color: '#f5576c',
             '&:hover': {
               bgcolor: 'rgba(245, 87, 108, 0.1)',
-              color: '#f5576c',
             }
           }}
         >
