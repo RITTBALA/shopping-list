@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Box, Menu, MenuItem, CircularProgress, Typography } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, collection, query, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, getDocs, where } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { archiveList, reactivateList, deleteListWithItems } from '../firebase/firestoreService';
 import { useTheme as useCustomTheme } from '../context/ThemeContext';
@@ -84,7 +84,10 @@ const ListPage = () => {
   const handleExport = async () => {
     try {
       // Fetch all items for this list
-      const itemsQuery = query(collection(db, 'lists', listId, 'items'));
+      const itemsQuery = query(
+        collection(db, 'items'),
+        where('listId', '==', listId)
+      );
       const itemsSnapshot = await getDocs(itemsQuery);
       const items = itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
