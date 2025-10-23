@@ -129,7 +129,7 @@ const SettingsPage = () => {
   return (
     <Box sx={{ 
       minHeight: '100vh', 
-      background: currentTheme.gradient,
+      background: currentTheme.isDark ? currentTheme.backgroundColor : currentTheme.gradient,
       transition: 'background 0.3s ease',
     }}>
       <AppBar 
@@ -184,18 +184,18 @@ const SettingsPage = () => {
           elevation={0} 
           sx={{ 
             p: { xs: 3, sm: 4 },
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: currentTheme.isDark ? currentTheme.cardBackground : 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(10px)',
             borderRadius: '20px',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
+            boxShadow: currentTheme.isDark ? '0 8px 32px 0 rgba(0, 0, 0, 0.5)' : '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
+            border: currentTheme.isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.3)',
           }}
         >
           <Typography 
             variant="h4" 
             sx={{
               mb: 1,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: currentTheme.gradient,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontWeight: 700,
@@ -203,11 +203,17 @@ const SettingsPage = () => {
           >
             Account Settings
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          <Typography variant="body2" sx={{ 
+            mb: 3,
+            color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+          }}>
             Manage your account preferences and security
           </Typography>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ 
+            my: 3,
+            borderColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.12)',
+          }} />
 
           <List sx={{ mb: 2 }}>
             <ListItem 
@@ -215,18 +221,25 @@ const SettingsPage = () => {
                 borderRadius: '12px',
                 mb: 1,
                 '&:hover': {
-                  backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                  backgroundColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(102, 126, 234, 0.05)',
                 },
               }}
             >
               <ListItemText
                 primary={
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+                  <Typography variant="subtitle2" sx={{ 
+                    fontSize: '0.85rem',
+                    color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+                  }}>
                     📧 Email
                   </Typography>
                 }
                 secondary={
-                  <Typography variant="body1" sx={{ fontWeight: 500, mt: 0.5 }}>
+                  <Typography variant="body1" sx={{ 
+                    fontWeight: 500, 
+                    mt: 0.5,
+                    color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                  }}>
                     {currentUser?.email}
                   </Typography>
                 }
@@ -237,18 +250,25 @@ const SettingsPage = () => {
                 borderRadius: '12px',
                 mb: 1,
                 '&:hover': {
-                  backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                  backgroundColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(102, 126, 234, 0.05)',
                 },
               }}
             >
               <ListItemText
                 primary={
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+                  <Typography variant="subtitle2" sx={{ 
+                    fontSize: '0.85rem',
+                    color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+                  }}>
                     👤 Display Name
                   </Typography>
                 }
                 secondary={
-                  <Typography variant="body1" sx={{ fontWeight: 500, mt: 0.5 }}>
+                  <Typography variant="body1" sx={{ 
+                    fontWeight: 500, 
+                    mt: 0.5,
+                    color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                  }}>
                     {currentUser?.displayName || 'Not set'}
                   </Typography>
                 }
@@ -258,18 +278,25 @@ const SettingsPage = () => {
               sx={{ 
                 borderRadius: '12px',
                 '&:hover': {
-                  backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                  backgroundColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(102, 126, 234, 0.05)',
                 },
               }}
             >
               <ListItemText
                 primary={
-                  <Typography variant="subtitle2" color="text.secondary" sx={{ fontSize: '0.85rem' }}>
+                  <Typography variant="subtitle2" sx={{ 
+                    fontSize: '0.85rem',
+                    color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+                  }}>
                     📅 Account Created
                   </Typography>
                 }
                 secondary={
-                  <Typography variant="body1" sx={{ fontWeight: 500, mt: 0.5 }}>
+                  <Typography variant="body1" sx={{ 
+                    fontWeight: 500, 
+                    mt: 0.5,
+                    color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                  }}>
                     {currentUser?.metadata?.creationTime || 'Unknown'}
                   </Typography>
                 }
@@ -277,14 +304,17 @@ const SettingsPage = () => {
             </ListItem>
           </List>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ 
+            my: 3,
+            borderColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.12)',
+          }} />
 
           <Typography 
             variant="h6" 
             sx={{ 
               mb: 2,
               fontWeight: 600,
-              color: '#667eea',
+              color: currentTheme.isDark ? currentTheme.textColor : '#667eea',
             }}
           >
             👥 Groups
@@ -299,12 +329,12 @@ const SettingsPage = () => {
               sx={{
                 py: 1.5,
                 borderRadius: '12px',
-                borderColor: '#667eea',
-                color: '#667eea',
+                borderColor: currentTheme.primary,
+                color: currentTheme.primary,
                 fontWeight: 600,
                 '&:hover': {
-                  borderColor: '#5568d3',
-                  backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                  borderColor: currentTheme.primary,
+                  backgroundColor: `${currentTheme.primary}15`,
                 },
               }}
             >
@@ -312,14 +342,17 @@ const SettingsPage = () => {
             </Button>
           </Box>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ 
+            my: 3,
+            borderColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.12)',
+          }} />
 
           <Typography 
             variant="h6" 
             sx={{ 
               mb: 2,
               fontWeight: 600,
-              color: '#667eea',
+              color: currentTheme.isDark ? currentTheme.textColor : '#667eea',
             }}
           >
             🔒 Security
@@ -334,14 +367,14 @@ const SettingsPage = () => {
               sx={{
                 py: 1.5,
                 borderRadius: '12px',
-                borderColor: 'rgba(102, 126, 234, 0.5)',
-                color: '#667eea',
+                borderColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(102, 126, 234, 0.5)',
+                color: currentTheme.primary,
                 fontWeight: 600,
                 '&:hover': {
-                  borderColor: '#667eea',
-                  backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                  borderColor: currentTheme.primary,
+                  backgroundColor: `${currentTheme.primary}15`,
                   transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.2)',
+                  boxShadow: `0 4px 12px ${currentTheme.primary}33`,
                 },
                 transition: 'all 0.3s ease',
               }}
@@ -350,14 +383,17 @@ const SettingsPage = () => {
             </Button>
           </Box>
 
-          <Divider sx={{ my: 3 }} />
+          <Divider sx={{ 
+            my: 3,
+            borderColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.12)',
+          }} />
 
           <Typography 
             variant="h6" 
             sx={{ 
               mb: 2,
               fontWeight: 600,
-              color: '#667eea',
+              color: currentTheme.isDark ? currentTheme.textColor : '#667eea',
             }}
           >
             ⚡ Actions
@@ -443,13 +479,13 @@ const SettingsPage = () => {
         PaperProps={{
           sx: {
             borderRadius: '20px',
-            background: 'rgba(255, 255, 255, 0.98)',
+            background: currentTheme.isDark ? currentTheme.cardBackground : 'rgba(255, 255, 255, 0.98)',
           }
         }}
       >
         <DialogTitle sx={{ 
           fontWeight: 700,
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: currentTheme.gradient,
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
         }}>
@@ -466,12 +502,22 @@ const SettingsPage = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
+                  background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                  '& fieldset': {
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.23)',
+                  },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#667eea',
+                    borderColor: currentTheme.primary,
                   },
                 },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#667eea',
+                '& .MuiInputLabel-root': {
+                  color: currentTheme.isDark ? currentTheme.textSecondary : 'rgba(0,0,0,0.6)',
+                  '&.Mui-focused': {
+                    color: currentTheme.primary,
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
                 },
               }}
             />
@@ -485,12 +531,25 @@ const SettingsPage = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
+                  background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                  '& fieldset': {
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.23)',
+                  },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#667eea',
+                    borderColor: currentTheme.primary,
                   },
                 },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#667eea',
+                '& .MuiInputLabel-root': {
+                  color: currentTheme.isDark ? currentTheme.textSecondary : 'rgba(0,0,0,0.6)',
+                  '&.Mui-focused': {
+                    color: currentTheme.primary,
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                },
+                '& .MuiFormHelperText-root': {
+                  color: currentTheme.isDark ? currentTheme.textSecondary : 'rgba(0,0,0,0.6)',
                 },
               }}
             />
@@ -503,12 +562,22 @@ const SettingsPage = () => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
+                  background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                  '& fieldset': {
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.23)',
+                  },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#667eea',
+                    borderColor: currentTheme.primary,
                   },
                 },
-                '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#667eea',
+                '& .MuiInputLabel-root': {
+                  color: currentTheme.isDark ? currentTheme.textSecondary : 'rgba(0,0,0,0.6)',
+                  '&.Mui-focused': {
+                    color: currentTheme.primary,
+                  },
+                },
+                '& .MuiInputBase-input': {
+                  color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
                 },
               }}
             />
