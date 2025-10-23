@@ -209,8 +209,8 @@ const DashboardPage = () => {
               onChange={handleViewModeChange}
               aria-label="view mode"
               sx={{
-                bgcolor: isDarkMode ? '#16213e' : 'white',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                bgcolor: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                boxShadow: currentTheme.isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)',
                 borderRadius: '12px',
                 '& .MuiToggleButton-root': {
                   px: 4,
@@ -218,7 +218,7 @@ const DashboardPage = () => {
                   border: 'none',
                   fontWeight: 'bold',
                   fontSize: '1rem',
-                  color: isDarkMode ? 'rgba(255,255,255,0.7)' : 'text.secondary',
+                  color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
                   '&:first-of-type': {
                     borderRadius: '12px 0 0 12px',
                   },
@@ -234,13 +234,13 @@ const DashboardPage = () => {
                     },
                   },
                   '&:hover': {
-                    bgcolor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                    bgcolor: currentTheme.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
                   },
                   '&:focus': {
                     outline: 'none',
                   },
                   '&:focus-visible': {
-                    outline: '2px solid #667eea',
+                    outline: `2px solid ${currentTheme.primary}`,
                     outlineOffset: '2px',
                   },
                 },
