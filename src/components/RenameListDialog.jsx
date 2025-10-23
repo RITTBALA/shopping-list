@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -7,13 +7,41 @@ import {
   TextField,
   Button,
   Alert,
+  Typography,
+  Grid,
+  Paper,
 } from '@mui/material';
 import { updateList } from '../firebase/firestoreService';
+import { useTheme } from '../context/ThemeContext';
+
+const COLOR_OPTIONS = [
+  { value: '#FFE5E5', label: 'Soft Coral' },
+  { value: '#E8F4FD', label: 'Sky Blue' },
+  { value: '#E8F8F5', label: 'Mint Green' },
+  { value: '#FFF4E6', label: 'Peach' },
+  { value: '#F3E5F5', label: 'Lavender' },
+  { value: '#FCE4EC', label: 'Rose' },
+  { value: '#E0F2F1', label: 'Teal' },
+  { value: '#FFF9C4', label: 'Lemon' },
+  { value: '#F1F8E9', label: 'Lime' },
+  { value: '#EDE7F6', label: 'Violet' },
+  { value: '#E1F5FE', label: 'Ice Blue' },
+  { value: '#FBE9E7', label: 'Apricot' },
+];
 
 const RenameListDialog = ({ open, onClose, list }) => {
   const [listName, setListName] = useState(list?.listName || '');
+  const [color, setColor] = useState(list?.color || '#E8F4FD');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { currentTheme } = useTheme();
+
+  useEffect(() => {
+    if (list) {
+      setListName(list.listName || '');
+      setColor(list.color || '#E8F4FD');
+    }
+  }, [list]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,11 +55,14 @@ const RenameListDialog = ({ open, onClose, list }) => {
     setLoading(true);
 
     try {
-      await updateList(list.id, { listName: listName.trim() });
+      await updateList(list.id, { 
+        listName: listName.trim(),
+        color: color,
+      });
       onClose(true); // Pass true to indicate success
     } catch (err) {
-      setError('Failed to rename list. Please try again.');
-      console.error('Error renaming list:', err);
+      setError('Failed to update list. Please try again.');
+      console.error('Error updating list:', err);
     } finally {
       setLoading(false);
     }
@@ -40,6 +71,7 @@ const RenameListDialog = ({ open, onClose, list }) => {
   const handleClose = () => {
     if (!loading) {
       setListName(list?.listName || '');
+      setColor(list?.color || '#E8F4FD');
       setError('');
       onClose(false);
     }
@@ -62,12 +94,13 @@ const RenameListDialog = ({ open, onClose, list }) => {
         <DialogTitle sx={{ 
           fontWeight: 700,
           fontSize: '1.5rem',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: currentTheme.gradient,
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
           pb: 1,
         }}>
-          ✏️ Rename List
+          Edit List
         </DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           {error && (
@@ -98,27 +131,68 @@ const RenameListDialog = ({ open, onClose, list }) => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '12px',
+                background: 'white',
+                '& fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.5)',
+                },
                 '&.Mui-focused fieldset': {
-                  borderColor: '#667eea',
+                  borderColor: currentTheme.primary,
                   borderWidth: '2px',
                 },
               },
-              '& .MuiInputLabel-root.Mui-focused': {
-                color: '#667eea',
-              },
             }}
           />
+
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              mt: 3,
+              mb: 1.5,
+              fontWeight: '600',
+              color: '#333',
+            }}
+          >
+            Color Theme
+          </Typography>
+          <Grid container spacing={1.5}>
+            {COLOR_OPTIONS.map((option) => (
+              <Grid item key={option.value}>
+                <Paper
+                  elevation={color === option.value ? 8 : 2}
+                  sx={{
+                    width: 50,
+                    height: 50,
+                    backgroundColor: option.value,
+                    cursor: 'pointer',
+                    borderRadius: '12px',
+                    border: color === option.value ? `3px solid ${currentTheme.primary}` : '2px solid rgba(0,0,0,0.1)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      transform: 'scale(1.15)',
+                      boxShadow: `0 4px 12px ${currentTheme.primary}33`,
+                    },
+                  }}
+                  onClick={() => setColor(option.value)}
+                />
+              </Grid>
+            ))}
+          </Grid>
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1 }}>
           <Button 
             onClick={handleClose} 
             disabled={loading}
             sx={{
-              borderRadius: '10px',
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: '600',
               px: 3,
-              color: '#667eea',
+              color: '#333',
               '&:hover': {
-                backgroundColor: 'rgba(102, 126, 234, 0.05)',
+                backgroundColor: 'rgba(0,0,0,0.05)',
               },
             }}
           >
@@ -129,13 +203,16 @@ const RenameListDialog = ({ open, onClose, list }) => {
             variant="contained" 
             disabled={loading}
             sx={{
-              borderRadius: '10px',
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: '600',
               px: 3,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              boxShadow: '0 4px 15px 0 rgba(102, 126, 234, 0.4)',
+              background: currentTheme.gradient,
+              color: 'white',
+              boxShadow: `0 4px 12px ${currentTheme.primary}33`,
               '&:hover': {
-                background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
-                boxShadow: '0 6px 20px 0 rgba(102, 126, 234, 0.5)',
+                opacity: 0.9,
+                boxShadow: `0 6px 16px ${currentTheme.primary}4D`,
               },
               '&:disabled': {
                 background: 'rgba(0, 0, 0, 0.12)',
@@ -143,7 +220,7 @@ const RenameListDialog = ({ open, onClose, list }) => {
               },
             }}
           >
-            {loading ? 'Renaming...' : 'Rename'}
+            {loading ? 'Saving...' : 'Save Changes'}
           </Button>
         </DialogActions>
       </form>

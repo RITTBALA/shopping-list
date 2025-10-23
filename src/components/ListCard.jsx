@@ -5,43 +5,22 @@ import {
   Typography,
   IconButton,
   Box,
-  Menu,
-  MenuItem,
 } from '@mui/material';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ArchiveIcon from '@mui/icons-material/Archive';
-import UnarchiveIcon from '@mui/icons-material/Unarchive';
+import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import * as Icons from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { archiveList, reactivateList, deleteListWithItems } from '../firebase/firestoreService';
+import { deleteListWithItems } from '../firebase/firestoreService';
+import RenameListDialog from './RenameListDialog';
 
 const ListCard = ({ list }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleMenuOpen = (event) => {
+  const handleRename = (event) => {
     event.stopPropagation();
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleArchive = async (event) => {
-    event.stopPropagation();
-    try {
-      if (list.status === 'active') {
-        await archiveList(list.id);
-      } else {
-        await reactivateList(list.id);
-      }
-    } catch (error) {
-      console.error('Error toggling archive status:', error);
-    }
-    handleMenuClose();
+    setRenameDialogOpen(true);
   };
 
   const handleDelete = async (event) => {
@@ -54,11 +33,16 @@ const ListCard = ({ list }) => {
         alert('Failed to delete list. Please try again.');
       }
     }
-    handleMenuClose();
   };
 
   const handleCardClick = () => {
+    // Don't navigate if dialog is open
+    if (renameDialogOpen) return;
     navigate(`/list/${list.id}`);
+  };
+
+  const handleCloseRenameDialog = () => {
+    setRenameDialogOpen(false);
   };
 
   // Get the icon component
@@ -135,8 +119,8 @@ const ListCard = ({ list }) => {
       <CardActions sx={{ justifyContent: 'flex-end', pt: 0, pb: 1 }}>
         <IconButton
           size="small"
-          onClick={handleMenuOpen}
-          aria-label="settings"
+          onClick={handleRename}
+          aria-label="rename"
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
             minHeight: { xs: 40, sm: 48 },
@@ -145,32 +129,30 @@ const ListCard = ({ list }) => {
             }
           }}
         >
-          <MoreVertIcon fontSize="small" />
+          <EditIcon fontSize="small" />
         </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={handleMenuClose}
+        <IconButton
+          size="small"
+          onClick={handleDelete}
+          aria-label="delete"
+          sx={{ 
+            minWidth: { xs: 40, sm: 48 }, 
+            minHeight: { xs: 40, sm: 48 },
+            '&:hover': {
+              bgcolor: 'rgba(245, 87, 108, 0.1)',
+              color: '#f5576c',
+            }
+          }}
         >
-          <MenuItem onClick={handleArchive}>
-            {list.status === 'active' ? (
-              <>
-                <ArchiveIcon sx={{ mr: 1 }} fontSize="small" />
-                Archive
-              </>
-            ) : (
-              <>
-                <UnarchiveIcon sx={{ mr: 1 }} fontSize="small" />
-                Unarchive
-              </>
-            )}
-          </MenuItem>
-          <MenuItem onClick={handleDelete}>
-            <DeleteIcon sx={{ mr: 1 }} fontSize="small" />
-            Delete
-          </MenuItem>
-        </Menu>
+          <DeleteIcon fontSize="small" />
+        </IconButton>
       </CardActions>
+
+      <RenameListDialog
+        open={renameDialogOpen}
+        onClose={handleCloseRenameDialog}
+        list={list}
+      />
     </Card>
   );
 };
