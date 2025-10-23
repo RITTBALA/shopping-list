@@ -10,6 +10,8 @@ import {
   Grid,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { addItem } from '../firebase/firestoreService';
 import { useAuth } from '../context/AuthContext';
 
@@ -115,51 +117,116 @@ const AddItemForm = ({ listId }) => {
             />
           </Grid>
           <Grid item xs={5} sm={2.5}>
-            <TextField
-              fullWidth
-              placeholder="Qty"
-              type="number"
-              inputProps={{
-                min: 0,
-                step: 0.1,
-              }}
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              disabled={loading}
-              size="medium"
-              autoComplete="off"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: '12px',
-                  background: 'white',
-                  '& fieldset': {
-                    borderColor: 'rgba(102, 126, 234, 0.3)',
+            <Box sx={{ position: 'relative' }}>
+              <TextField
+                fullWidth
+                placeholder="Qty"
+                type="number"
+                inputProps={{
+                  min: 0,
+                  step: 0.1,
+                }}
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                disabled={loading}
+                size="medium"
+                autoComplete="off"
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: '12px',
+                    background: 'white',
+                    paddingRight: '32px',
+                    '& fieldset': {
+                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: 'rgba(102, 126, 234, 0.5)',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#667eea',
+                      borderWidth: '2px',
+                    },
                   },
-                  '&:hover fieldset': {
-                    borderColor: 'rgba(102, 126, 234, 0.5)',
+                  '& .MuiInputBase-input': {
+                    fontSize: { xs: '0.9rem', sm: '1rem' },
                   },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#667eea',
-                    borderWidth: '2px',
+                  // Hide default number input arrows (spinner)
+                  '& input[type=number]': {
+                    MozAppearance: 'textfield',
                   },
-                },
-                '& .MuiInputBase-input': {
-                  fontSize: { xs: '0.9rem', sm: '1rem' },
-                },
-                // Hide default number input arrows (spinner)
-                '& input[type=number]': {
-                  MozAppearance: 'textfield',
-                },
-                '& input[type=number]::-webkit-outer-spin-button': {
-                  WebkitAppearance: 'none',
-                  margin: 0,
-                },
-                '& input[type=number]::-webkit-inner-spin-button': {
-                  WebkitAppearance: 'none',
-                  margin: 0,
-                },
-              }}
-            />
+                  '& input[type=number]::-webkit-outer-spin-button': {
+                    WebkitAppearance: 'none',
+                    margin: 0,
+                  },
+                  '& input[type=number]::-webkit-inner-spin-button': {
+                    WebkitAppearance: 'none',
+                    margin: 0,
+                  },
+                }}
+              />
+              <Box
+                sx={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1px',
+                }}
+              >
+                <IconButton
+                  size="small"
+                  disabled={loading}
+                  onClick={() => setQuantity(prev => {
+                    const num = parseFloat(prev) || 0;
+                    return (num + 0.1).toFixed(1);
+                  })}
+                  sx={{
+                    padding: 0,
+                    minWidth: 0,
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    color: '#667eea',
+                    '&:hover': {
+                      backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '16px',
+                    },
+                  }}
+                >
+                  <KeyboardArrowUpIcon />
+                </IconButton>
+                <IconButton
+                  size="small"
+                  disabled={loading}
+                  onClick={() => setQuantity(prev => {
+                    const num = parseFloat(prev) || 0;
+                    return Math.max(0, num - 0.1).toFixed(1);
+                  })}
+                  sx={{
+                    padding: 0,
+                    minWidth: 0,
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    color: '#667eea',
+                    '&:hover': {
+                      backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      fontSize: '16px',
+                    },
+                  }}
+                >
+                  <KeyboardArrowDownIcon />
+                </IconButton>
+              </Box>
+            </Box>
           </Grid>
           <Grid item xs={5} sm={2.5}>
             <FormControl fullWidth size="medium">
