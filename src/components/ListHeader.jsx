@@ -105,9 +105,10 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
               sx={{ 
                 mr: 0.5,
                 color: '#ffffff',
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  transform: 'scale(1.1)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                  transform: 'scale(1.05)',
                 },
                 transition: 'all 0.3s ease',
               }}
@@ -119,9 +120,10 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
             <IconButton
               sx={{ 
                 color: '#ffffff',
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  transform: 'scale(1.1)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                  transform: 'scale(1.05)',
                 },
                 transition: 'all 0.3s ease',
               }}
@@ -137,10 +139,20 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
               sx={{ 
                 mr: 1,
                 color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderColor: 'rgba(255, 255, 255, 0.7)',
+                borderWidth: '1.5px',
+                fontWeight: 600,
+                px: 2.5,
+                py: 0.75,
+                borderRadius: '10px',
+                textTransform: 'none',
+                fontSize: '0.95rem',
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   borderColor: '#ffffff',
+                  borderWidth: '1.5px',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
                 },
                 transition: 'all 0.3s ease',
               }}
@@ -154,10 +166,20 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
               sx={{ 
                 mr: 1,
                 color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.5)',
+                borderColor: 'rgba(255, 255, 255, 0.7)',
+                borderWidth: '1.5px',
+                fontWeight: 600,
+                px: 2.5,
+                py: 0.75,
+                borderRadius: '10px',
+                textTransform: 'none',
+                fontSize: '0.95rem',
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   borderColor: '#ffffff',
+                  borderWidth: '1.5px',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
                 },
                 transition: 'all 0.3s ease',
               }}
