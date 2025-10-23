@@ -13,7 +13,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import * as Icons from '@mui/material-icons';
+import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
