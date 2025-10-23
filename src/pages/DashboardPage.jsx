@@ -184,7 +184,7 @@ const DashboardPage = () => {
       </AppBar>
 
       <Box sx={{ 
-        bgcolor: isDarkMode ? '#1a1a2e' : '#f8f9fa', 
+        bgcolor: currentTheme.isDark ? currentTheme.backgroundColor : '#f8f9fa', 
         minHeight: '100vh',
         transition: 'background-color 0.3s ease',
       }}>

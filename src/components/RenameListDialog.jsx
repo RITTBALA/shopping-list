@@ -86,7 +86,7 @@ const RenameListDialog = ({ open, onClose, list }) => {
       PaperProps={{
         sx: {
           borderRadius: '20px',
-          background: 'rgba(255, 255, 255, 0.98)',
+          background: currentTheme.isDark ? currentTheme.cardBackground : 'rgba(255, 255, 255, 0.98)',
         }
       }}
     >
@@ -131,17 +131,23 @@ const RenameListDialog = ({ open, onClose, list }) => {
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '12px',
-                background: 'white',
+                background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
                 '& fieldset': {
-                  borderColor: 'rgba(102, 126, 234, 0.3)',
+                  borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(102, 126, 234, 0.3)',
                 },
                 '&:hover fieldset': {
-                  borderColor: 'rgba(102, 126, 234, 0.5)',
+                  borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(102, 126, 234, 0.5)',
                 },
                 '&.Mui-focused fieldset': {
                   borderColor: currentTheme.primary,
                   borderWidth: '2px',
                 },
+              },
+              '& .MuiInputLabel-root': {
+                color: currentTheme.isDark ? currentTheme.textSecondary : 'rgba(0,0,0,0.6)',
+              },
+              '& .MuiInputBase-input': {
+                color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
               },
             }}
           />
@@ -152,7 +158,7 @@ const RenameListDialog = ({ open, onClose, list }) => {
               mt: 3,
               mb: 1.5,
               fontWeight: '600',
-              color: '#333',
+              color: currentTheme.isDark ? currentTheme.textColor : '#333',
             }}
           >
             Color Theme

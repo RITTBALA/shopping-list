@@ -54,16 +54,18 @@ const ListCard = ({ list }) => {
     <Card
       sx={{
         cursor: 'pointer',
-        backgroundColor: list.color || '#ffffff',
+        backgroundColor: currentTheme.isDark ? currentTheme.cardBackground : (list.color || '#ffffff'),
         minHeight: { xs: 120, sm: 140 },
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 3,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        boxShadow: currentTheme.isDark ? '0 2px 8px rgba(0,0,0,0.5)' : '0 2px 8px rgba(0,0,0,0.1)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        border: '1px solid rgba(0,0,0,0.05)',
+        border: currentTheme.isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)',
         '&:hover': {
-          boxShadow: '0 8px 24px rgba(102, 126, 234, 0.15)',
+          boxShadow: currentTheme.isDark 
+            ? `0 8px 24px ${currentTheme.primary}40`
+            : '0 8px 24px rgba(102, 126, 234, 0.15)',
           transform: 'translateY(-4px)',
         },
       }}
@@ -76,7 +78,7 @@ const ListCard = ({ list }) => {
               mr: { xs: 1, sm: 1.5 },
               p: 1,
               borderRadius: 2,
-              bgcolor: 'rgba(102, 126, 234, 0.1)',
+              bgcolor: currentTheme.isDark ? `${currentTheme.primary}20` : 'rgba(102, 126, 234, 0.1)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -85,7 +87,7 @@ const ListCard = ({ list }) => {
             <IconComponent 
               sx={{ 
                 fontSize: { xs: 28, sm: 36 },
-                color: '#667eea'
+                color: currentTheme.primary
               }} 
             />
           </Box>
@@ -99,6 +101,7 @@ const ListCard = ({ list }) => {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+              color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
             }}
           >
             {list.listName}
@@ -106,15 +109,21 @@ const ListCard = ({ list }) => {
         </Box>
         <Typography 
           variant="body2" 
-          color="text.secondary" 
           sx={{ 
             fontSize: { xs: '0.75rem', sm: '0.875rem' },
-            fontWeight: '500'
+            fontWeight: '500',
+            color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
           }}
         >
           👥 {list.members?.length || 0} member{list.members?.length !== 1 ? 's' : ''}
         </Typography>
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            fontSize: { xs: '0.7rem', sm: '0.75rem' },
+            color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+          }}
+        >
           📅 {list.createdAt?.toDate().toLocaleDateString()}
         </Typography>
       </CardContent>

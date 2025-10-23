@@ -28,10 +28,10 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
         display: 'flex',
         flexDirection: 'column',
         borderRadius: 3,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        boxShadow: currentTheme.isDark ? '0 2px 8px rgba(0,0,0,0.5)' : '0 2px 8px rgba(0,0,0,0.1)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        border: '1px solid rgba(0,0,0,0.05)',
-        backgroundColor: 'white',
+        border: currentTheme.isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)',
+        backgroundColor: currentTheme.isDark ? currentTheme.cardBackground : 'white',
         '&:hover': {
           boxShadow: `0 8px 24px ${currentTheme.primary}26`,
           transform: 'translateY(-4px)',
@@ -68,7 +68,7 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              color: '#333',
+              color: currentTheme.isDark ? currentTheme.textColor : '#333',
             }}
           >
             {group.groupName}
@@ -77,7 +77,7 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
         <Typography 
           variant="body2" 
           sx={{ 
-            color: '#666',
+            color: currentTheme.isDark ? currentTheme.textSecondary : '#666',
             fontWeight: '500',
             fontSize: { xs: '0.85rem', sm: '0.9rem' },
           }}
