@@ -264,9 +264,9 @@ const DashboardPage = () => {
                 borderBottom: 1, 
                 borderColor: 'divider', 
                 mb: { xs: 2, sm: 3 },
-                bgcolor: isDarkMode ? '#16213e' : 'white',
+                bgcolor: currentTheme.isDark ? currentTheme.cardBackground : 'white',
                 borderRadius: '8px 8px 0 0',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+                boxShadow: currentTheme.isDark ? '0 2px 4px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.05)',
                 transition: 'background-color 0.3s ease',
               }}>
             <Tabs 
@@ -278,7 +278,7 @@ const DashboardPage = () => {
                 '& .MuiTab-root': {
                   fontWeight: 'bold',
                   fontSize: '1rem',
-                  color: isDarkMode ? 'rgba(255,255,255,0.7)' : 'inherit',
+                  color: currentTheme.isDark ? currentTheme.textSecondary : 'rgba(0,0,0,0.6)',
                 },
                 '& .Mui-selected': {
                   color: currentTheme.primary,
@@ -298,16 +298,18 @@ const DashboardPage = () => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 minHeight: '50vh',
-                bgcolor: 'white',
+                bgcolor: currentTheme.isDark ? currentTheme.cardBackground : 'white',
                 borderRadius: 2,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                boxShadow: currentTheme.isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.05)',
                 p: 4
               }}
             >
               <Typography variant="h4" sx={{ mb: 2 }}>
                 {tabValue === 0 ? '📝' : '📦'}
               </Typography>
-              <Typography variant="h6" color="text.secondary">
+              <Typography variant="h6" sx={{ 
+                color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+              }}>
                 {tabValue === 0
                   ? 'No active lists. Create your first shopping list!'
                   : 'No archived lists.'}
