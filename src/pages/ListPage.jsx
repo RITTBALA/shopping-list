@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Box, Menu, MenuItem, CircularProgress, Typography } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { archiveList, reactivateList, deleteListWithItems } from '../firebase/firestoreService';
 import { useTheme as useCustomTheme } from '../context/ThemeContext';
@@ -81,6 +81,66 @@ const ListPage = () => {
     handleMenuClose();
   };
 
+  const handleExport = async () => {
+    try {
+      // Fetch all items for this list
+      const itemsQuery = query(collection(db, 'lists', listId, 'items'));
+      const itemsSnapshot = await getDocs(itemsQuery);
+      const items = itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Separate purchased and unpurchased items
+      const unpurchasedItems = items.filter(item => !item.isPurchased);
+      const purchasedItems = items.filter(item => item.isPurchased);
+
+      // Format the text content
+      let textContent = `${list.listName}\n`;
+      textContent += `${'='.repeat(list.listName.length)}\n\n`;
+      
+      if (unpurchasedItems.length > 0) {
+        textContent += `TO BUY (${unpurchasedItems.length} items):\n`;
+        textContent += '-'.repeat(30) + '\n';
+        unpurchasedItems.forEach((item, index) => {
+          textContent += `${index + 1}. ${item.itemName}`;
+          if (item.quantity || item.unit) {
+            textContent += ` - ${item.quantity || ''} ${item.unit || ''}`.trim();
+          }
+          textContent += '\n';
+        });
+        textContent += '\n';
+      }
+
+      if (purchasedItems.length > 0) {
+        textContent += `PURCHASED (${purchasedItems.length} items):\n`;
+        textContent += '-'.repeat(30) + '\n';
+        purchasedItems.forEach((item, index) => {
+          textContent += `${index + 1}. ✓ ${item.itemName}`;
+          if (item.quantity || item.unit) {
+            textContent += ` - ${item.quantity || ''} ${item.unit || ''}`.trim();
+          }
+          textContent += '\n';
+        });
+        textContent += '\n';
+      }
+
+      textContent += `\nTotal items: ${items.length}\n`;
+      textContent += `Exported on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}\n`;
+
+      // Create and download the file
+      const blob = new Blob([textContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${list.listName.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting list:', error);
+      alert('Failed to export list. Please try again.');
+    }
+  };
+
   const handleShare = () => {
     setShareDialogOpen(true);
   };
@@ -138,6 +198,7 @@ const ListPage = () => {
       <ListHeader 
         list={list} 
         onShare={handleShare}
+        onExport={handleExport}
         onRename={handleRename}
         onMenuClick={handleMenuOpen}
       />

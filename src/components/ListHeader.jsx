@@ -10,12 +10,13 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShareIcon from '@mui/icons-material/Share';
+import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import * as Icons from '@mui/icons-material';
+import * as Icons from '@mui/material-icons';
 import { useNavigate } from 'react-router-dom';
 
-const ListHeader = ({ list, onShare, onRename, onMenuClick }) => {
+const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Changed from 'sm' to 'md'
@@ -99,38 +100,74 @@ const ListHeader = ({ list, onShare, onRename, onMenuClick }) => {
         </IconButton>
 
         {isMobile ? (
-          <IconButton
-            sx={{ 
-              color: '#ffffff',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                transform: 'scale(1.1)',
-              },
-              transition: 'all 0.3s ease',
-            }}
-            onClick={onShare}
-            title="Share list"
-          >
-            <ShareIcon fontSize="small" />
-          </IconButton>
+          <>
+            <IconButton
+              sx={{ 
+                mr: 0.5,
+                color: '#ffffff',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  transform: 'scale(1.1)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+              onClick={onExport}
+              title="Export list"
+            >
+              <DownloadIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              sx={{ 
+                color: '#ffffff',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  transform: 'scale(1.1)',
+                },
+                transition: 'all 0.3s ease',
+              }}
+              onClick={onShare}
+              title="Share list"
+            >
+              <ShareIcon fontSize="small" />
+            </IconButton>
+          </>
         ) : (
-          <Button
-            sx={{ 
-              mr: 1,
-              color: '#ffffff',
-              borderColor: 'rgba(255, 255, 255, 0.5)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                borderColor: '#ffffff',
-              },
-              transition: 'all 0.3s ease',
-            }}
-            variant="outlined"
-            startIcon={<ShareIcon />}
-            onClick={onShare}
-          >
-            Share
-          </Button>
+          <>
+            <Button
+              sx={{ 
+                mr: 1,
+                color: '#ffffff',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderColor: '#ffffff',
+                },
+                transition: 'all 0.3s ease',
+              }}
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              onClick={onExport}
+            >
+              Export
+            </Button>
+            <Button
+              sx={{ 
+                mr: 1,
+                color: '#ffffff',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderColor: '#ffffff',
+                },
+                transition: 'all 0.3s ease',
+              }}
+              variant="outlined"
+              startIcon={<ShareIcon />}
+              onClick={onShare}
+            >
+              Share
+            </Button>
+          </>
         )}
 
         <IconButton 
