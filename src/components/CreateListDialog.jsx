@@ -26,6 +26,7 @@ import * as Icons from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { createList, getGroup, getUserByEmail } from '../firebase/firestoreService';
 import GroupPicker from './GroupPicker';
 
@@ -62,6 +63,7 @@ const CreateListDialog = ({ open, onClose }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
+  const { currentTheme } = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -177,12 +179,41 @@ const CreateListDialog = ({ open, onClose }) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog 
+      open={open} 
+      onClose={handleClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: '20px',
+          background: 'white',
+        }
+      }}
+    >
       <form onSubmit={handleSubmit}>
-        <DialogTitle>Create New Shopping List</DialogTitle>
+        <DialogTitle 
+          sx={{ 
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            background: currentTheme.gradient,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            pb: 1,
+          }}
+        >
+          Create New Shopping List
+        </DialogTitle>
         <DialogContent>
           {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 2,
+                borderRadius: '12px',
+              }}
+            >
               {error}
             </Alert>
           )}
@@ -197,9 +228,44 @@ const CreateListDialog = ({ open, onClose }) => {
             value={listName}
             onChange={(e) => setListName(e.target.value)}
             placeholder="e.g., Weekly Groceries"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                background: 'white',
+                '& fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.5)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: currentTheme.primary,
+                  borderWidth: '2px',
+                },
+              },
+            }}
           />
 
-          <FormControl fullWidth margin="normal">
+          <FormControl 
+            fullWidth 
+            margin="normal"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                background: 'white',
+                '& fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.5)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: currentTheme.primary,
+                  borderWidth: '2px',
+                },
+              },
+            }}
+          >
             <InputLabel>Icon</InputLabel>
             <Select
               value={icon}
@@ -211,7 +277,7 @@ const CreateListDialog = ({ open, onClose }) => {
                 return (
                   <MenuItem key={option.value} value={option.value}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <IconComp sx={{ mr: 1 }} />
+                      <IconComp sx={{ mr: 1, color: currentTheme.primary }} />
                       {option.label}
                     </Box>
                   </MenuItem>
@@ -227,8 +293,19 @@ const CreateListDialog = ({ open, onClose }) => {
               onChange={(e, newValue) => setShareMode(newValue)}
               variant="fullWidth"
               sx={{
+                '& .MuiTabs-indicator': {
+                  background: currentTheme.gradient,
+                  height: '3px',
+                  borderRadius: '3px',
+                },
                 '& .MuiTab-root': {
-                  fontWeight: 'bold',
+                  fontWeight: '600',
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
+                  color: '#666',
+                  '&.Mui-selected': {
+                    color: currentTheme.primary,
+                  },
                   '&:focus': {
                     outline: 'none',
                   },
@@ -251,7 +328,15 @@ const CreateListDialog = ({ open, onClose }) => {
           {/* Individual Mode */}
           {shareMode === 1 && (
             <Box sx={{ mt: 2 }}>
-              <Typography variant="subtitle2" gutterBottom>
+              <Typography 
+                variant="subtitle2" 
+                gutterBottom
+                sx={{ 
+                  fontWeight: '600',
+                  color: '#333',
+                  mb: 1.5,
+                }}
+              >
                 Add People by Email
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
@@ -267,13 +352,30 @@ const CreateListDialog = ({ open, onClose }) => {
                       handleAddIndividualMember();
                     }
                   }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      background: 'white',
+                      '& fieldset': {
+                        borderColor: 'rgba(102, 126, 234, 0.3)',
+                      },
+                      '&:hover fieldset': {
+                        borderColor: 'rgba(102, 126, 234, 0.5)',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: currentTheme.primary,
+                        borderWidth: '2px',
+                      },
+                    },
+                  }}
                 />
                 <IconButton
                   color="primary"
                   onClick={handleAddIndividualMember}
                   sx={{
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    background: currentTheme.gradient,
                     color: 'white',
+                    borderRadius: '12px',
                     '&:hover': {
                       opacity: 0.9,
                     },
@@ -285,22 +387,38 @@ const CreateListDialog = ({ open, onClose }) => {
 
               {individualMembers.length > 0 && (
                 <Box>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography 
+                    variant="caption" 
+                    sx={{ 
+                      color: '#666',
+                      fontWeight: '600',
+                    }}
+                  >
                     Added members ({individualMembers.length})
                   </Typography>
-                  <List sx={{ maxHeight: 150, overflow: 'auto' }}>
+                  <List sx={{ maxHeight: 150, overflow: 'auto', mt: 1 }}>
                     {individualMembers.map((member) => (
                       <ListItem
                         key={member.uid}
                         secondaryAction={
-                          <IconButton edge="end" onClick={() => handleRemoveIndividualMember(member.uid)}>
+                          <IconButton 
+                            edge="end" 
+                            onClick={() => handleRemoveIndividualMember(member.uid)}
+                            sx={{
+                              color: '#ef5350',
+                              '&:hover': {
+                                backgroundColor: 'rgba(239, 83, 80, 0.1)',
+                              },
+                            }}
+                          >
                             <DeleteIcon />
                           </IconButton>
                         }
                         sx={{
-                          borderRadius: 2,
+                          borderRadius: '12px',
                           mb: 1,
-                          bgcolor: 'rgba(102, 126, 234, 0.05)',
+                          bgcolor: 'white',
+                          border: '1px solid rgba(102, 126, 234, 0.2)',
                         }}
                       >
                         <ListItemText primary={member.email} />
@@ -311,29 +429,48 @@ const CreateListDialog = ({ open, onClose }) => {
               )}
 
               {individualMembers.length === 0 && (
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    textAlign: 'center',
+                    py: 3,
+                    color: '#999',
+                    fontStyle: 'italic',
+                  }}
+                >
                   No members added. The list will only be visible to you.
                 </Typography>
               )}
             </Box>
           )}
 
-          <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
-            Color
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              mt: 3,
+              mb: 1.5,
+              fontWeight: '600',
+              color: '#333',
+            }}
+          >
+            Color Theme
           </Typography>
-          <Grid container spacing={1}>
+          <Grid container spacing={1.5}>
             {COLOR_OPTIONS.map((option) => (
               <Grid item key={option.value}>
                 <Paper
-                  elevation={color === option.value ? 6 : 1}
+                  elevation={color === option.value ? 8 : 2}
                   sx={{
                     width: 50,
                     height: 50,
                     backgroundColor: option.value,
                     cursor: 'pointer',
-                    border: color === option.value ? '3px solid #1976d2' : 'none',
+                    borderRadius: '12px',
+                    border: color === option.value ? `3px solid ${currentTheme.primary}` : '2px solid rgba(0,0,0,0.1)',
+                    transition: 'all 0.2s ease',
                     '&:hover': {
-                      transform: 'scale(1.1)',
+                      transform: 'scale(1.15)',
+                      boxShadow: `0 4px 12px ${currentTheme.primary}33`,
                     },
                   }}
                   onClick={() => setColor(option.value)}
@@ -342,11 +479,41 @@ const CreateListDialog = ({ open, onClose }) => {
             ))}
           </Grid>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} disabled={loading}>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <Button 
+            onClick={handleClose} 
+            disabled={loading}
+            sx={{
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: '600',
+              px: 3,
+              color: '#333',
+              '&:hover': {
+                backgroundColor: 'rgba(0,0,0,0.05)',
+              },
+            }}
+          >
             Cancel
           </Button>
-          <Button type="submit" variant="contained" disabled={loading}>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            disabled={loading}
+            sx={{
+              borderRadius: '12px',
+              textTransform: 'none',
+              fontWeight: '600',
+              px: 3,
+              background: currentTheme.gradient,
+              color: 'white',
+              boxShadow: `0 4px 12px ${currentTheme.primary}33`,
+              '&:hover': {
+                opacity: 0.9,
+                boxShadow: `0 6px 16px ${currentTheme.primary}4D`,
+              },
+            }}
+          >
             {loading ? 'Creating...' : 'Create List'}
           </Button>
         </DialogActions>
