@@ -23,6 +23,7 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
 
   return (
     <Card
+      onClick={() => onEdit(group)}
       sx={{
         minHeight: { xs: 140, sm: 160 },
         display: 'flex',
@@ -32,6 +33,7 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         border: currentTheme.isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)',
         backgroundColor: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+        cursor: 'pointer',
         '&:hover': {
           boxShadow: `0 8px 24px ${currentTheme.primary}26`,
           transform: 'translateY(-4px)',
@@ -88,7 +90,10 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
       <CardActions sx={{ justifyContent: 'flex-end', pt: 0, pb: 1.5, px: 2 }}>
         <IconButton
           size="small"
-          onClick={() => onEdit(group)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit(group);
+          }}
           aria-label="edit"
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
@@ -103,7 +108,10 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
         </IconButton>
         <IconButton
           size="small"
-          onClick={handleDelete}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete();
+          }}
           aria-label="delete"
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
