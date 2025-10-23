@@ -86,6 +86,13 @@ const Item = ({ item }) => {
         </ListItemIcon>
         <ListItemText
           primary={item.itemName}
+          secondary={
+            item.quantity || item.unit ? (
+              <span style={{ fontWeight: 500, color: '#667eea' }}>
+                {item.quantity} {item.unit}
+              </span>
+            ) : null
+          }
           primaryTypographyProps={{
             fontSize: { xs: '0.95rem', sm: '1.05rem' },
             fontWeight: item.isPurchased ? 400 : 500,

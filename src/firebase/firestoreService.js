@@ -174,6 +174,8 @@ export const addItem = async (itemData, listId, userId) => {
   try {
     const itemRef = await addDoc(collection(db, 'items'), {
       itemName: itemData.itemName,
+      quantity: itemData.quantity || '',
+      unit: itemData.unit || '',
       isPurchased: false,
       listId: listId,
       addedBy: userId
