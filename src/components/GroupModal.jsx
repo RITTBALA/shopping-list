@@ -12,13 +12,14 @@ import {
   IconButton,
   Typography,
   Box,
-  Chip,
+  Alert,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/firebase';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const GroupModal = ({ open, onClose, onSave, group = null }) => {
   const [groupName, setGroupName] = useState('');
@@ -27,6 +28,7 @@ const GroupModal = ({ open, onClose, onSave, group = null }) => {
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [error, setError] = useState('');
   const { currentUser } = useAuth();
+  const { currentTheme } = useTheme();
 
   useEffect(() => {
     if (group) {
@@ -138,17 +140,44 @@ const GroupModal = ({ open, onClose, onSave, group = null }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      maxWidth="sm" 
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: '20px',
+          background: 'white',
+        }
+      }}
+    >
       <DialogTitle
         sx={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
+          fontSize: '1.5rem',
           fontWeight: 'bold',
+          background: currentTheme.gradient,
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          pb: 1,
         }}
       >
-        👥 {group ? 'Edit Group' : 'Create New Group'}
+        {group ? 'Edit Group' : 'Create New Group'}
       </DialogTitle>
       <DialogContent sx={{ pt: 3 }}>
+        {error && (
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 2,
+              borderRadius: '12px',
+            }}
+          >
+            {error}
+          </Alert>
+        )}
+
         <TextField
           autoFocus
           margin="dense"
@@ -156,10 +185,35 @@ const GroupModal = ({ open, onClose, onSave, group = null }) => {
           fullWidth
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
-          sx={{ mb: 3 }}
+          sx={{ 
+            mb: 3,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '12px',
+              background: 'white',
+              '& fieldset': {
+                borderColor: 'rgba(102, 126, 234, 0.3)',
+              },
+              '&:hover fieldset': {
+                borderColor: 'rgba(102, 126, 234, 0.5)',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: currentTheme.primary,
+                borderWidth: '2px',
+              },
+            },
+          }}
         />
 
-        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold', mt: 2 }}>
+        <Typography 
+          variant="subtitle2" 
+          gutterBottom 
+          sx={{ 
+            fontWeight: '600',
+            color: '#333',
+            mt: 2,
+            mb: 1.5,
+          }}
+        >
           Members ({memberUids.length})
         </Typography>
 
@@ -175,14 +229,32 @@ const GroupModal = ({ open, onClose, onSave, group = null }) => {
                 handleAddMember();
               }
             }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                background: 'white',
+                '& fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: 'rgba(102, 126, 234, 0.5)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: currentTheme.primary,
+                  borderWidth: '2px',
+                },
+              },
+            }}
           />
           <IconButton
             color="primary"
             onClick={handleAddMember}
             sx={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: currentTheme.gradient,
               color: 'white',
+              borderRadius: '12px',
               '&:hover': {
+                background: currentTheme.gradient,
                 opacity: 0.9,
               },
             }}
@@ -190,12 +262,6 @@ const GroupModal = ({ open, onClose, onSave, group = null }) => {
             <AddIcon />
           </IconButton>
         </Box>
-
-        {error && (
-          <Typography color="error" variant="body2" sx={{ mb: 2 }}>
-            {error}
-          </Typography>
-        )}
 
         <List sx={{ maxHeight: 200, overflow: 'auto' }}>
           {memberUids.map((uid) => {
@@ -205,39 +271,76 @@ const GroupModal = ({ open, onClose, onSave, group = null }) => {
                 key={uid}
                 secondaryAction={
                   !isOwner && (
-                    <IconButton edge="end" onClick={() => handleRemoveMember(uid)}>
+                    <IconButton 
+                      edge="end" 
+                      onClick={() => handleRemoveMember(uid)}
+                      sx={{
+                        color: '#ef5350',
+                        '&:hover': {
+                          backgroundColor: 'rgba(239, 83, 80, 0.1)',
+                        },
+                      }}
+                    >
                       <DeleteIcon />
                     </IconButton>
                   )
                 }
                 sx={{
-                  borderRadius: 2,
+                  borderRadius: '12px',
                   mb: 1,
-                  bgcolor: 'rgba(102, 126, 234, 0.05)',
+                  bgcolor: 'white',
+                  border: '1px solid rgba(102, 126, 234, 0.2)',
                 }}
               >
                 <ListItemText
                   primary={memberEmails[uid] || uid}
                   secondary={isOwner ? 'Owner' : 'Member'}
+                  primaryTypographyProps={{
+                    sx: { fontWeight: '500' }
+                  }}
+                  secondaryTypographyProps={{
+                    sx: { color: currentTheme.primary, fontWeight: '600', fontSize: '0.75rem' }
+                  }}
                 />
               </ListItem>
             );
           })}
         </List>
       </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose}>Cancel</Button>
+      <DialogActions sx={{ px: 3, pb: 2.5 }}>
+        <Button 
+          onClick={onClose}
+          sx={{
+            borderRadius: '12px',
+            textTransform: 'none',
+            fontWeight: '600',
+            px: 3,
+            color: '#333',
+            '&:hover': {
+              backgroundColor: 'rgba(0,0,0,0.05)',
+            },
+          }}
+        >
+          Cancel
+        </Button>
         <Button
           onClick={handleSave}
           variant="contained"
           sx={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '12px',
+            textTransform: 'none',
+            fontWeight: '600',
+            px: 3,
+            background: currentTheme.gradient,
+            color: 'white',
+            boxShadow: `0 4px 12px ${currentTheme.primary}33`,
             '&:hover': {
               opacity: 0.9,
+              boxShadow: `0 6px 16px ${currentTheme.primary}4D`,
             },
           }}
         >
-          {group ? 'Save' : 'Create'}
+          {group ? 'Save Changes' : 'Create Group'}
         </Button>
       </DialogActions>
     </Dialog>
