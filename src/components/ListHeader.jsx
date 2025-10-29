@@ -13,10 +13,23 @@ import ShareIcon from '@mui/icons-material/Share';
 import DownloadIcon from '@mui/icons-material/Download';
 import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MapIcon from '@mui/icons-material/Map';
 import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
+  // Open Google Maps for navigation
+  const handleDirections = () => {
+    if (!location) return;
+    const query = encodeURIComponent(location);
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`,'_blank');
+  };
+  // Safe defaults for list properties
+  const icon = list?.icon || 'ShoppingCart';
+  const color = list?.color || '#E8F4FD';
+  const listName = list?.listName || '';
+  const location = list?.location || '';
+        
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Changed from 'sm' to 'md'
@@ -24,7 +37,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
   if (!list) return null;
 
   // Get the icon component
-  const IconComponent = Icons[list.icon] || Icons.ShoppingCart;
+  const IconComponent = Icons[icon] || Icons.ShoppingCart;
 
   return (
     <AppBar 
@@ -58,7 +71,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
           mr: { xs: 1, sm: 2 },
           p: 1,
           borderRadius: '12px',
-          background: `linear-gradient(135deg, ${list.color}22, ${list.color}44)`,
+          background: `linear-gradient(135deg, ${color}22, ${color}44)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -80,7 +93,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
             whiteSpace: 'nowrap',
           }}
         >
-          {list.listName}
+          {listName}
         </Typography>
 
         <IconButton
@@ -97,6 +110,23 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
           title="Rename list"
         >
           <EditIcon fontSize={isMobile ? 'small' : 'medium'} />
+        </IconButton>
+
+        <IconButton
+          sx={{
+            mr: { xs: 0.5, sm: 1 },
+            color: '#ffffff',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              transform: 'scale(1.1)',
+            },
+            transition: 'all 0.3s ease',
+          }}
+          onClick={handleDirections}
+          title={list.location ? `Navigate to ${list.location}` : 'No location set'}
+          disabled={!list.location}
+        >
+          <MapIcon fontSize={isMobile ? 'small' : 'medium'} />
         </IconButton>
 
         {isMobile ? (

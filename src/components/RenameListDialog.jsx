@@ -30,8 +30,9 @@ const COLOR_OPTIONS = [
 ];
 
 const RenameListDialog = ({ open, onClose, list }) => {
-  const [listName, setListName] = useState(list?.listName || '');
-  const [color, setColor] = useState(list?.color || '#E8F4FD');
+  const [listName, setListName] = useState((list && list.listName) || '');
+  const [color, setColor] = useState((list && list.color) || '#E8F4FD');
+  const [location, setLocation] = useState((list && list.location) || '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { currentTheme } = useTheme();
@@ -40,6 +41,11 @@ const RenameListDialog = ({ open, onClose, list }) => {
     if (list) {
       setListName(list.listName || '');
       setColor(list.color || '#E8F4FD');
+      setLocation(list.location || '');
+    } else {
+      setListName('');
+      setColor('#E8F4FD');
+      setLocation('');
     }
   }, [list]);
 
@@ -55,9 +61,11 @@ const RenameListDialog = ({ open, onClose, list }) => {
     setLoading(true);
 
     try {
+      if (!list || !list.id) throw new Error('List not found');
       await updateList(list.id, { 
         listName: listName.trim(),
         color: color,
+        location: location.trim(),
       });
       onClose(true); // Pass true to indicate success
     } catch (err) {
@@ -70,8 +78,9 @@ const RenameListDialog = ({ open, onClose, list }) => {
 
   const handleClose = () => {
     if (!loading) {
-      setListName(list?.listName || '');
-      setColor(list?.color || '#E8F4FD');
+      setListName((list && list.listName) || '');
+      setColor((list && list.color) || '#E8F4FD');
+      setLocation((list && list.location) || '');
       setError('');
       onClose(false);
     }
@@ -117,6 +126,39 @@ const RenameListDialog = ({ open, onClose, list }) => {
               {error}
             </Alert>
           )}
+
+          <TextField
+            margin="normal"
+            label="Store Location (address or coordinates)"
+            type="text"
+            fullWidth
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            disabled={loading}
+            placeholder="e.g., 123 Main St, City or 47.4979, 19.0402"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                '& fieldset': {
+                  borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(102, 126, 234, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(102, 126, 234, 0.5)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: currentTheme.primary,
+                  borderWidth: '2px',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: currentTheme.isDark ? currentTheme.textSecondary : 'rgba(0,0,0,0.6)',
+              },
+              '& .MuiInputBase-input': {
+                color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+              },
+            }}
+          />
 
           <TextField
             autoFocus

@@ -61,6 +61,7 @@ const CreateListDialog = ({ open, onClose }) => {
   const [icon, setIcon] = useState('ShoppingCart');
   const [color, setColor] = useState('#E8F4FD');
   const [selectedGroup, setSelectedGroup] = useState('just-me');
+  const [location, setLocation] = useState('');
   const [shareMode, setShareMode] = useState(0); // 0 = Group, 1 = Individual
   const [individualMembers, setIndividualMembers] = useState([]);
   const [newMemberEmail, setNewMemberEmail] = useState('');
@@ -106,6 +107,7 @@ const CreateListDialog = ({ open, onClose }) => {
           listName: listName.trim(),
           icon,
           color,
+          location: location.trim(),
           members, // Pass the members array
           linkedGroupId, // Pass the linked group ID
         },
@@ -116,7 +118,8 @@ const CreateListDialog = ({ open, onClose }) => {
       setListName('');
       setIcon('ShoppingCart');
       setColor('#E8F4FD');
-      setSelectedGroup('just-me');
+  setSelectedGroup('just-me');
+  setLocation('');
       setIndividualMembers([]);
       setNewMemberEmail('');
       setShareMode(0);
@@ -232,6 +235,38 @@ const CreateListDialog = ({ open, onClose }) => {
             value={listName}
             onChange={(e) => setListName(e.target.value)}
             placeholder="e.g., Weekly Groceries"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+                background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                '& fieldset': {
+                  borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(102, 126, 234, 0.3)',
+                },
+                '&:hover fieldset': {
+                  borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(102, 126, 234, 0.5)',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: currentTheme.primary,
+                  borderWidth: '2px',
+                },
+              },
+              '& .MuiInputLabel-root': {
+                color: currentTheme.isDark ? currentTheme.textSecondary : 'rgba(0,0,0,0.6)',
+              },
+              '& .MuiInputBase-input': {
+                color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+              },
+            }}
+          />
+
+          <TextField
+            margin="normal"
+            label="Store Location (address or coordinates)"
+            type="text"
+            fullWidth
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="e.g., 123 Main St, City or 47.4979, 19.0402"
             sx={{
               '& .MuiOutlinedInput-root': {
                 borderRadius: '12px',

@@ -28,6 +28,7 @@ export const createList = async (listData, userId) => {
       listName: listData.listName,
       icon: listData.icon,
       color: listData.color,
+      location: listData.location || '', // New location field
       createdAt: serverTimestamp(),
       creatorId: userId,
       members: listData.members || [userId], // Use provided members or default to just creator

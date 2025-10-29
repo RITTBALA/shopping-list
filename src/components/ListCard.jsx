@@ -8,6 +8,14 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import MapIcon from '@mui/icons-material/Map';
+  // Open Google Maps for navigation
+  const handleDirections = (event) => {
+    event.stopPropagation();
+    if (!list.location) return;
+    const query = encodeURIComponent(list.location);
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`,'_blank');
+  };
 import * as Icons from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -47,14 +55,22 @@ const ListCard = ({ list }) => {
     setRenameDialogOpen(false);
   };
 
+  // Safe defaults for list properties
+  const icon = list?.icon || 'ShoppingCart';
+  const color = list.color || '#E8F4FD';
+  const listName = list?.listName || '';
+  const location = list?.location || '';
+  const members = Array.isArray(list?.members) ? list.members : [];
+  const createdAt = list?.createdAt && typeof list.createdAt.toDate === 'function' ? list.createdAt.toDate() : null;
+
   // Get the icon component
-  const IconComponent = Icons[list.icon] || Icons.ShoppingCart;
+  const IconComponent = Icons[icon] || Icons.ShoppingCart;
 
   return (
     <Card
       sx={{
         cursor: 'pointer',
-        backgroundColor: currentTheme.isDark ? currentTheme.cardBackground : (list.color || '#ffffff'),
+  backgroundColor: currentTheme.isDark ? currentTheme.cardBackground : color,
         minHeight: { xs: 120, sm: 140 },
         display: 'flex',
         flexDirection: 'column',
@@ -104,7 +120,7 @@ const ListCard = ({ list }) => {
               color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
             }}
           >
-            {list.listName}
+            {listName}
           </Typography>
         </Box>
         <Typography 
@@ -115,7 +131,7 @@ const ListCard = ({ list }) => {
             color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
           }}
         >
-          👥 {list.members?.length || 0} member{list.members?.length !== 1 ? 's' : ''}
+          👥 {members.length} member{members.length !== 1 ? 's' : ''}
         </Typography>
         <Typography 
           variant="caption" 
@@ -124,7 +140,7 @@ const ListCard = ({ list }) => {
             color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
           }}
         >
-          📅 {list.createdAt?.toDate().toLocaleDateString()}
+          📅 {createdAt ? createdAt.toLocaleDateString() : ''}
         </Typography>
       </CardContent>
       <CardActions sx={{ justifyContent: 'flex-end', pt: 0, pb: 1 }}>
@@ -156,6 +172,22 @@ const ListCard = ({ list }) => {
           }}
         >
           <DeleteIcon fontSize="small" />
+        </IconButton>
+        <IconButton
+          size="small"
+          onClick={handleDirections}
+          aria-label="directions"
+          sx={{
+            minWidth: { xs: 40, sm: 48 },
+            minHeight: { xs: 40, sm: 48 },
+            color: '#4caf50',
+            '&:hover': {
+              bgcolor: 'rgba(76, 175, 80, 0.1)',
+            }
+          }}
+          disabled={!location}
+        >
+          <MapIcon fontSize="small" />
         </IconButton>
       </CardActions>
 
