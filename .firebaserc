@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "shopping-list-c9f40",
+    "new-server": "easyshopping-list"
+  },
+  "targets": {},
+  "etags": {}
+}
