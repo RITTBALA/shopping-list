@@ -4,13 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDtRdp7_XolESibounA4_gxRVJDgzf-NqM",
-  authDomain: "shopping-list-c9f40.firebaseapp.com",
-  projectId: "shopping-list-c9f40",
-  storageBucket: "shopping-list-c9f40.firebasestorage.app",
-  messagingSenderId: "200281584693",
-  appId: "1:200281584693:web:3ca7214274ea6a783c2d7c",
-  measurementId: "G-6EJJRM52DF"
+  apiKey: "AIzaSyBtB54Z4ocRvRZ4-mMQiI29kBjU8D1GUgY",
+  authDomain: "easyshopping-list.firebaseapp.com",
+  projectId: "easyshopping-list",
+  storageBucket: "easyshopping-list.firebasestorage.app",
+  messagingSenderId: "972197540912",
+  appId: "1:972197540912:web:8f463aebfcbf64512329f5",
+  measurementId: "G-5QV0THWNTP"
 };
 
 // Initialize Firebase

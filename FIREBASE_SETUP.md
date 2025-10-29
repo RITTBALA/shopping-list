@@ -77,18 +77,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Helper function to check if user is admin
+    // Helper function to check if a user is an admin via a custom claim
     function isAdmin() {
       return request.auth != null && 
              request.auth.token.email == 'admin@admin.com';
+      return request.auth.token.admin === true;
     }
     
+
+    // A user can read their own data, or an admin can.
+    // A user can only create/update their own document.
     match /users/{userId} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && 
                       (request.auth.uid == userId || isAdmin());
+      allow read: if request.auth.uid == userId || isAdmin();
+      allow write: if request.auth.uid == userId;
       allow delete: if isAdmin(); // Admin can delete any user
     }
     
+
+    // Rules for the 'lists' collection
     match /lists/{listId} {
       allow read: if request.auth != null && 
                      (request.auth.uid in resource.data.members || isAdmin());
@@ -98,6 +107,20 @@ service cloud.firestore {
                        (request.auth.uid in resource.data.members || isAdmin());
       allow delete: if request.auth != null && 
                        (request.auth.uid in resource.data.members || isAdmin());
+      // A user must be a member of a list to interact with it.
+      function isListMember() {
+        return request.auth.uid in resource.data.members;
+      }
+
+      allow read, update, delete: if isListMember() || isAdmin();
+      // On create, the creator must be listed as a member.
+      allow create: if request.auth.uid in request.resource.data.members;
+
+      // Nest items within the list for better security.
+      // Now, these rules only apply if the user can access the parent list.
+      match /items/{itemId} {
+        allow read, write, delete: if isListMember() || isAdmin();
+      }
     }
     
     match /items/{itemId} {
