@@ -14,6 +14,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { addItem } from '../firebase/firestoreService';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 const UNIT_OPTIONS = [
   { value: '', label: 'No unit' },
@@ -39,6 +40,7 @@ const AddItemForm = ({ listId }) => {
   const [unit, setUnit] = useState('');
   const [loading, setLoading] = useState(false);
   const { currentUser } = useAuth();
+  const { currentTheme } = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,11 +76,11 @@ const AddItemForm = ({ listId }) => {
       sx={{ 
         p: { xs: 2, sm: 2.5 }, 
         mb: { xs: 2, sm: 3 },
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: currentTheme.isDark ? currentTheme.cardBackground : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(10px)',
         borderRadius: '16px',
-        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: currentTheme.isDark ? '0 8px 32px 0 rgba(0, 0, 0, 0.5)' : '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
+        border: currentTheme.isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.3)',
       }}
     >
       <Box
@@ -98,20 +100,21 @@ const AddItemForm = ({ listId }) => {
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
-                  background: 'white',
+                  background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
                   '& fieldset': {
-                    borderColor: 'rgba(102, 126, 234, 0.3)',
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(102, 126, 234, 0.3)',
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(102, 126, 234, 0.5)',
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(102, 126, 234, 0.5)',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#667eea',
+                    borderColor: currentTheme.primary,
                     borderWidth: '2px',
                   },
                 },
                 '& .MuiInputBase-input': {
                   fontSize: { xs: '0.95rem', sm: '1rem' },
+                  color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
                 }
               }}
             />
@@ -134,21 +137,22 @@ const AddItemForm = ({ listId }) => {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '12px',
-                    background: 'white',
+                    background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
                     paddingRight: '32px',
                     '& fieldset': {
-                      borderColor: 'rgba(102, 126, 234, 0.3)',
+                      borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(102, 126, 234, 0.3)',
                     },
                     '&:hover fieldset': {
-                      borderColor: 'rgba(102, 126, 234, 0.5)',
+                      borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(102, 126, 234, 0.5)',
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#667eea',
+                      borderColor: currentTheme.primary,
                       borderWidth: '2px',
                     },
                   },
                   '& .MuiInputBase-input': {
                     fontSize: { xs: '0.9rem', sm: '1rem' },
+                    color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
                   },
                   // Hide default number input arrows (spinner)
                   '& input[type=number]': {
@@ -237,20 +241,31 @@ const AddItemForm = ({ listId }) => {
                 displayEmpty
                 sx={{
                   borderRadius: '12px',
-                  background: 'white',
+                  background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
                   '& fieldset': {
-                    borderColor: 'rgba(102, 126, 234, 0.3)',
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(102, 126, 234, 0.3)',
                   },
                   '&:hover fieldset': {
-                    borderColor: 'rgba(102, 126, 234, 0.5)',
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(102, 126, 234, 0.5)',
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#667eea',
+                    borderColor: currentTheme.primary,
                     borderWidth: '2px',
                   },
                   '& .MuiSelect-select': {
                     fontSize: { xs: '0.9rem', sm: '1rem' },
+                    color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
                   }
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      bgcolor: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                      '& .MuiMenuItem-root': {
+                        color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                      },
+                    },
+                  },
                 }}
               >
                 {UNIT_OPTIONS.map((option) => (

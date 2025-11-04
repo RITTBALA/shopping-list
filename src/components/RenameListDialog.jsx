@@ -218,9 +218,11 @@ const RenameListDialog = ({ open, onClose, list }) => {
                     borderRadius: '12px',
                     border: color === option.value ? `3px solid ${currentTheme.primary}` : '2px solid rgba(0,0,0,0.1)',
                     transition: 'all 0.2s ease',
+                    opacity: currentTheme.isDark ? 0.5 : 1,
                     '&:hover': {
                       transform: 'scale(1.15)',
                       boxShadow: `0 4px 12px ${currentTheme.primary}33`,
+                      opacity: currentTheme.isDark ? 0.75 : 1,
                     },
                   }}
                   onClick={() => setColor(option.value)}

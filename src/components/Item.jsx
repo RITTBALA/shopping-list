@@ -8,8 +8,10 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { toggleItemPurchased, deleteItem } from '../firebase/firestoreService';
+import { useTheme } from '../context/ThemeContext';
 
 const Item = ({ item }) => {
+  const { currentTheme } = useTheme();
   const handleToggle = async () => {
     try {
       await toggleItemPurchased(item.id, item.isPurchased);
@@ -49,12 +51,12 @@ const Item = ({ item }) => {
       }
       disablePadding
       sx={{
-        borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
+        borderBottom: currentTheme.isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.06)',
         '&:last-child': {
           borderBottom: 'none',
         },
         '&:hover': {
-          backgroundColor: 'rgba(102, 126, 234, 0.05)',
+          backgroundColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(102, 126, 234, 0.05)',
         },
         transition: 'background-color 0.2s ease',
       }}
@@ -74,9 +76,9 @@ const Item = ({ item }) => {
             tabIndex={-1}
             disableRipple
             sx={{
-              color: 'rgba(102, 126, 234, 0.6)',
+              color: currentTheme.isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(102, 126, 234, 0.6)',
               '&.Mui-checked': {
-                color: '#667eea',
+                color: currentTheme.primary,
               },
               '& .MuiSvgIcon-root': {
                 fontSize: { xs: 22, sm: 24 },
@@ -88,7 +90,7 @@ const Item = ({ item }) => {
           primary={item.itemName}
           secondary={
             item.quantity || item.unit ? (
-              <span style={{ fontWeight: 500, color: '#667eea' }}>
+              <span style={{ fontWeight: 500, color: currentTheme.primary }}>
                 {item.quantity} {item.unit}
               </span>
             ) : null
@@ -96,10 +98,12 @@ const Item = ({ item }) => {
           primaryTypographyProps={{
             fontSize: { xs: '0.95rem', sm: '1.05rem' },
             fontWeight: item.isPurchased ? 400 : 500,
+            color: currentTheme.isDark 
+              ? (item.isPurchased ? currentTheme.textSecondary : currentTheme.textColor)
+              : (item.isPurchased ? 'text.secondary' : 'text.primary'),
           }}
           sx={{
             textDecoration: item.isPurchased ? 'line-through' : 'none',
-            color: item.isPurchased ? 'text.secondary' : 'text.primary',
             opacity: item.isPurchased ? 0.6 : 1,
             transition: 'all 0.2s ease',
           }}

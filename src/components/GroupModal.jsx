@@ -300,15 +300,20 @@ const GroupModal = ({ open, onClose, onSave, group = null }) => {
                 sx={{
                   borderRadius: '12px',
                   mb: 1,
-                  bgcolor: 'white',
-                  border: '1px solid rgba(102, 126, 234, 0.2)',
+                  bgcolor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.05)' : 'white',
+                  border: currentTheme.isDark 
+                    ? '1px solid rgba(255, 255, 255, 0.1)' 
+                    : '1px solid rgba(102, 126, 234, 0.2)',
                 }}
               >
                 <ListItemText
                   primary={memberEmails[uid] || uid}
                   secondary={isOwner ? 'Owner' : 'Member'}
                   primaryTypographyProps={{
-                    sx: { fontWeight: '500' }
+                    sx: { 
+                      fontWeight: '500',
+                      color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                    }
                   }}
                   secondaryTypographyProps={{
                     sx: { color: currentTheme.primary, fontWeight: '600', fontSize: '0.75rem' }

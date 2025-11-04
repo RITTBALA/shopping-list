@@ -23,7 +23,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import { getUserByEmail, addMemberToList, removeMemberFromList, getUserById, getGroup, linkListToGroup, unlinkListFromGroup } from '../firebase/firestoreService';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import GroupPicker from './GroupPicker';
 
 const ShareListDialog = ({ open, onClose, list }) => {
@@ -37,6 +40,7 @@ const ShareListDialog = ({ open, onClose, list }) => {
   const [selectedGroup, setSelectedGroup] = useState('');
   const [linkedGroup, setLinkedGroup] = useState(null);
   const { currentUser } = useAuth();
+  const { currentTheme } = useTheme();
 
   // Load member details when dialog opens
   useEffect(() => {
@@ -82,6 +86,13 @@ const ShareListDialog = ({ open, onClose, list }) => {
       return;
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address (e.g., user@example.com).');
+      return;
+    }
+
     if (email.toLowerCase() === currentUser.email.toLowerCase()) {
       setError('You are already a member of this list.');
       return;
@@ -118,8 +129,14 @@ const ShareListDialog = ({ open, onClose, list }) => {
       setSuccess(`Successfully shared with ${email}!`);
       setEmail('');
       
-      // Reload members
-      await loadMembers();
+      // Fetch updated list members from the database
+      const listDoc = await getDoc(doc(db, 'lists', list.id));
+      if (listDoc.exists()) {
+        const updatedMembers = listDoc.data().members || [];
+        const memberPromises = updatedMembers.map(uid => getUserById(uid));
+        const memberData = await Promise.all(memberPromises);
+        setMembers(memberData.filter(m => m !== null));
+      }
     } catch (err) {
       console.error('Error sharing list:', err);
       setError('Failed to share list. Please try again.');
@@ -145,7 +162,19 @@ const ShareListDialog = ({ open, onClose, list }) => {
       
       setSuccess('Successfully linked list to group! All current and future group members will have access.');
       setSelectedGroup('');
-      await loadMembers();
+      
+      // Load the linked group info
+      const group = await getGroup(selectedGroup);
+      setLinkedGroup(group);
+      
+      // Fetch updated list members from the database
+      const listDoc = await getDoc(doc(db, 'lists', list.id));
+      if (listDoc.exists()) {
+        const updatedMembers = listDoc.data().members || [];
+        const memberPromises = updatedMembers.map(uid => getUserById(uid));
+        const memberData = await Promise.all(memberPromises);
+        setMembers(memberData.filter(m => m !== null));
+      }
     } catch (err) {
       console.error('Error sharing with group:', err);
       setError('Failed to share with group. Please try again.');
@@ -189,15 +218,11 @@ const ShareListDialog = ({ open, onClose, list }) => {
   };
 
   const handleUnlinkGroup = async () => {
-    if (!window.confirm('Are you sure you want to unlink this list from the group? Current members will stay, but new group members won\'t be automatically added.')) {
-      return;
-    }
-
     try {
       await unlinkListFromGroup(list.id);
       setSuccess('List unlinked from group successfully.');
+      // The linkedGroup will be cleared when the parent refreshes the list
       setLinkedGroup(null);
-      await loadLinkedGroup();
     } catch (err) {
       console.error('Error unlinking from group:', err);
       setError('Failed to unlink from group.');
@@ -220,14 +245,15 @@ const ShareListDialog = ({ open, onClose, list }) => {
       PaperProps={{
         sx: {
           borderRadius: '20px',
-          background: 'rgba(255, 255, 255, 0.98)',
+          background: currentTheme.isDark ? currentTheme.cardBackground : 'rgba(255, 255, 255, 0.98)',
+          border: currentTheme.isDark ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
         }
       }}
     >
       <DialogTitle sx={{ 
         fontWeight: 700,
         fontSize: '1.5rem',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: currentTheme.gradient,
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         pb: 1,
@@ -242,9 +268,9 @@ const ShareListDialog = ({ open, onClose, list }) => {
             sx={{
               mb: 2,
               borderRadius: '12px',
-              backgroundColor: 'rgba(102, 126, 234, 0.1)',
-              color: '#667eea',
-              border: '1px solid rgba(102, 126, 234, 0.3)',
+              backgroundColor: currentTheme.isDark ? 'rgba(102, 126, 234, 0.15)' : 'rgba(102, 126, 234, 0.1)',
+              color: currentTheme.primary,
+              border: `1px solid ${currentTheme.primary}50`,
             }}
             action={
               <Button
@@ -252,9 +278,9 @@ const ShareListDialog = ({ open, onClose, list }) => {
                 startIcon={<LinkOffIcon />}
                 onClick={handleUnlinkGroup}
                 sx={{
-                  color: '#667eea',
+                  color: currentTheme.primary,
                   '&:hover': {
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    backgroundColor: currentTheme.isDark ? 'rgba(102, 126, 234, 0.2)' : 'rgba(102, 126, 234, 0.1)',
                   },
                 }}
               >
@@ -272,7 +298,7 @@ const ShareListDialog = ({ open, onClose, list }) => {
             sx={{ 
               mb: 2,
               borderRadius: '12px',
-              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              backgroundColor: currentTheme.isDark ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.1)',
               color: '#ef4444',
               border: '1px solid rgba(239, 68, 68, 0.3)',
             }}
@@ -288,7 +314,7 @@ const ShareListDialog = ({ open, onClose, list }) => {
             sx={{ 
               mb: 2,
               borderRadius: '12px',
-              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              backgroundColor: currentTheme.isDark ? 'rgba(34, 197, 94, 0.15)' : 'rgba(34, 197, 94, 0.1)',
               color: '#22c55e',
               border: '1px solid rgba(34, 197, 94, 0.3)',
             }}
@@ -305,8 +331,17 @@ const ShareListDialog = ({ open, onClose, list }) => {
             onChange={(e, newValue) => setShareMode(newValue)}
             variant="fullWidth"
             sx={{
+              '& .MuiTabs-indicator': {
+                background: currentTheme.gradient,
+                height: '3px',
+                borderRadius: '3px',
+              },
               '& .MuiTab-root': {
                 fontWeight: 'bold',
+                color: currentTheme.isDark ? currentTheme.textSecondary : 'inherit',
+                '&.Mui-selected': {
+                  color: currentTheme.primary,
+                },
                 '&:focus': {
                   outline: 'none',
                 },
@@ -321,7 +356,7 @@ const ShareListDialog = ({ open, onClose, list }) => {
         {/* Individual Share Mode */}
         {shareMode === 0 && (
           <Box component="form" onSubmit={handleShare} sx={{ mb: 3 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography variant="body2" sx={{ mb: 2, color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary' }}>
               💌 Enter the email address of the person you want to share this list with:
             </Typography>
             
@@ -329,22 +364,38 @@ const ShareListDialog = ({ open, onClose, list }) => {
             <TextField
               fullWidth
               label="Email Address"
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={loading}
               size="medium"
               placeholder="friend@example.com"
+              inputProps={{
+                autoComplete: 'email',
+              }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   borderRadius: '12px',
+                  background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                  '& fieldset': {
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.23)',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.23)',
+                  },
                   '&.Mui-focused fieldset': {
-                    borderColor: '#667eea',
+                    borderColor: currentTheme.primary,
                     borderWidth: '2px',
                   },
                 },
+                '& .MuiInputLabel-root': {
+                  color: currentTheme.isDark ? currentTheme.textSecondary : 'inherit',
+                },
                 '& .MuiInputLabel-root.Mui-focused': {
-                  color: '#667eea',
+                  color: currentTheme.primary,
+                },
+                '& .MuiInputBase-input': {
+                  color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
                 },
               }}
             />
@@ -356,15 +407,16 @@ const ShareListDialog = ({ open, onClose, list }) => {
               sx={{
                 borderRadius: '12px',
                 px: 3,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                boxShadow: '0 4px 15px 0 rgba(102, 126, 234, 0.4)',
+                background: currentTheme.gradient,
+                boxShadow: `0 4px 15px 0 ${currentTheme.primary}66`,
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
-                  boxShadow: '0 6px 20px 0 rgba(102, 126, 234, 0.5)',
+                  background: currentTheme.gradient,
+                  boxShadow: `0 6px 20px 0 ${currentTheme.primary}80`,
+                  filter: 'brightness(0.95)',
                 },
                 '&:disabled': {
-                  background: 'rgba(0, 0, 0, 0.12)',
-                  color: 'rgba(0, 0, 0, 0.26)',
+                  background: currentTheme.isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+                  color: currentTheme.isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.26)',
                 },
                 whiteSpace: 'nowrap',
               }}
@@ -378,11 +430,11 @@ const ShareListDialog = ({ open, onClose, list }) => {
         {/* Group Share Mode */}
         {shareMode === 1 && (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            <Typography variant="body2" sx={{ mb: 2, color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary' }}>
               👥 Select a group to share this list with all its members:
             </Typography>
             
-            <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end' }}>
+            <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
               <Box sx={{ flexGrow: 1 }}>
                 <GroupPicker 
                   value={selectedGroup}
@@ -397,16 +449,17 @@ const ShareListDialog = ({ open, onClose, list }) => {
                 sx={{
                   borderRadius: '12px',
                   px: 3,
-                  py: 1.9,
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  boxShadow: '0 4px 15px 0 rgba(102, 126, 234, 0.4)',
+                  height: '56px',
+                  background: currentTheme.gradient,
+                  boxShadow: `0 4px 15px 0 ${currentTheme.primary}66`,
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
-                    boxShadow: '0 6px 20px 0 rgba(102, 126, 234, 0.5)',
+                    background: currentTheme.gradient,
+                    boxShadow: `0 6px 20px 0 ${currentTheme.primary}80`,
+                    filter: 'brightness(0.95)',
                   },
                   '&:disabled': {
-                    background: 'rgba(0, 0, 0, 0.12)',
-                    color: 'rgba(0, 0, 0, 0.26)',
+                    background: currentTheme.isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+                    color: currentTheme.isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.26)',
                   },
                   whiteSpace: 'nowrap',
                 }}
@@ -422,7 +475,7 @@ const ShareListDialog = ({ open, onClose, list }) => {
           sx={{ 
             mb: 1.5, 
             fontWeight: 700,
-            color: '#667eea',
+            color: currentTheme.primary,
             fontSize: '1rem',
           }}
         >
@@ -431,11 +484,11 @@ const ShareListDialog = ({ open, onClose, list }) => {
 
         {loadingMembers ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-            <CircularProgress sx={{ color: '#667eea' }} />
+            <CircularProgress sx={{ color: currentTheme.primary }} />
           </Box>
         ) : (
           <List dense sx={{ 
-            backgroundColor: 'rgba(102, 126, 234, 0.03)',
+            backgroundColor: currentTheme.isDark ? 'rgba(255,255,255,0.03)' : 'rgba(102, 126, 234, 0.03)',
             borderRadius: '12px',
             p: 1,
           }}>
@@ -448,20 +501,20 @@ const ShareListDialog = ({ open, onClose, list }) => {
                   borderRadius: '8px',
                   mb: 0.5,
                   '&:hover': {
-                    backgroundColor: 'rgba(102, 126, 234, 0.08)',
+                    backgroundColor: currentTheme.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(102, 126, 234, 0.08)',
                   },
                   transition: 'background-color 0.2s ease',
                 }}
               >
                 <ListItemText
                   primary={
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, color: currentTheme.isDark ? currentTheme.textColor : 'inherit' }}>
                       {member.displayName || member.email}
                     </Typography>
                   }
                   secondary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" sx={{ color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary' }}>
                         {member.email}
                       </Typography>
                       {member.uid === list?.creatorId && (
@@ -471,7 +524,7 @@ const ShareListDialog = ({ open, onClose, list }) => {
                           sx={{ 
                             height: '20px',
                             fontSize: '0.7rem',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: currentTheme.gradient,
                             color: 'white',
                           }} 
                         />
@@ -483,7 +536,7 @@ const ShareListDialog = ({ open, onClose, list }) => {
                           sx={{ 
                             height: '20px',
                             fontSize: '0.7rem',
-                            backgroundColor: '#667eea',
+                            backgroundColor: currentTheme.primary,
                             color: 'white',
                           }} 
                         />
@@ -534,9 +587,9 @@ const ShareListDialog = ({ open, onClose, list }) => {
             display: 'block',
             p: 2,
             borderRadius: '12px',
-            backgroundColor: 'rgba(102, 126, 234, 0.05)',
-            color: 'text.secondary',
-            borderLeft: '4px solid #667eea',
+            backgroundColor: currentTheme.isDark ? 'rgba(255,255,255,0.05)' : 'rgba(102, 126, 234, 0.05)',
+            color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+            borderLeft: `4px solid ${currentTheme.primary}`,
           }}
         >
           ℹ️ All members can view, add, and check off items on this list.
@@ -549,13 +602,14 @@ const ShareListDialog = ({ open, onClose, list }) => {
             borderRadius: '10px',
             px: 4,
             py: 1,
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: currentTheme.gradient,
             color: 'white',
             fontWeight: 600,
-            boxShadow: '0 4px 15px 0 rgba(102, 126, 234, 0.4)',
+            boxShadow: `0 4px 15px 0 ${currentTheme.primary}66`,
             '&:hover': {
-              background: 'linear-gradient(135deg, #5568d3 0%, #6a3f8f 100%)',
-              boxShadow: '0 6px 20px 0 rgba(102, 126, 234, 0.5)',
+              background: currentTheme.gradient,
+              boxShadow: `0 6px 20px 0 ${currentTheme.primary}80`,
+              filter: 'brightness(0.95)',
             },
           }}
         >

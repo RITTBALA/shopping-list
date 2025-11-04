@@ -338,9 +338,9 @@ const DashboardPage = () => {
                     justifyContent: 'center',
                     alignItems: 'center',
                     minHeight: '50vh',
-                    bgcolor: isDarkMode ? '#16213e' : 'white',
+                    bgcolor: currentTheme.isDark ? currentTheme.cardBackground : 'white',
                     borderRadius: 2,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                    boxShadow: currentTheme.isDark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.05)',
                     p: 4,
                     textAlign: 'center',
                   }}
@@ -357,7 +357,13 @@ const DashboardPage = () => {
                   >
                     No groups yet
                   </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      mb: 3,
+                      color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+                    }}
+                  >
                     Create groups to easily share new lists with multiple people at once.
                   </Typography>
                 </Box>

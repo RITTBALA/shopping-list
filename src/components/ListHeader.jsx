@@ -6,7 +6,7 @@ import {
   Button,
   Box,
   useMediaQuery,
-  useTheme,
+  useTheme as useMuiTheme,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShareIcon from '@mui/icons-material/Share';
@@ -16,6 +16,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MapIcon from '@mui/icons-material/Map';
 import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
   // Open Google Maps for navigation
@@ -31,8 +32,9 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
   const location = list?.location || '';
         
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Changed from 'sm' to 'md'
+  const muiTheme = useMuiTheme();
+  const { currentTheme } = useTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md')); // Changed from 'sm' to 'md'
 
   if (!list) return null;
 
@@ -43,10 +45,10 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
     <AppBar 
       position="static" 
       sx={{ 
-        background: 'rgba(255, 255, 255, 0.15)',
+        background: currentTheme.gradient,
         backdropFilter: 'blur(10px)',
-        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-        border: '1px solid rgba(255, 255, 255, 0.18)',
+        boxShadow: currentTheme.isDark ? '0 8px 32px 0 rgba(0, 0, 0, 0.6)' : '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        border: currentTheme.isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.18)',
         color: '#ffffff',
       }}
     >
@@ -57,7 +59,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
             mr: { xs: 1, sm: 2 },
             color: '#ffffff',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
               transform: 'scale(1.1)',
             },
             transition: 'all 0.3s ease',
@@ -71,7 +73,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
           mr: { xs: 1, sm: 2 },
           p: 1,
           borderRadius: '12px',
-          background: `linear-gradient(135deg, ${color}22, ${color}44)`,
+          background: 'rgba(255, 255, 255, 0.15)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -87,7 +89,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
             color: '#ffffff',
             fontWeight: 700,
             fontSize: { xs: '1.1rem', sm: '1.35rem' },
-            textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.2)',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -99,9 +101,9 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
         <IconButton
           sx={{ 
             mr: { xs: 0.5, sm: 1 },
-            color: '#ffffff',
+            color: '#60a5fa',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              backgroundColor: 'rgba(96, 165, 250, 0.15)',
               transform: 'scale(1.1)',
             },
             transition: 'all 0.3s ease',
@@ -115,12 +117,15 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
         <IconButton
           sx={{
             mr: { xs: 0.5, sm: 1 },
-            color: '#ffffff',
+            color: '#22c55e',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              backgroundColor: 'rgba(34, 197, 94, 0.15)',
               transform: 'scale(1.1)',
             },
             transition: 'all 0.3s ease',
+            '&.Mui-disabled': {
+              color: 'rgba(255, 255, 255, 0.3)',
+            },
           }}
           onClick={handleDirections}
           title={location ? `Navigate to ${location}` : 'No location set'}
@@ -137,7 +142,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
                 color: '#ffffff',
                 bgcolor: 'rgba(255, 255, 255, 0.1)',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   transform: 'scale(1.05)',
                 },
                 transition: 'all 0.3s ease',
@@ -152,7 +157,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
                 color: '#ffffff',
                 bgcolor: 'rgba(255, 255, 255, 0.1)',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   transform: 'scale(1.05)',
                 },
                 transition: 'all 0.3s ease',
@@ -169,7 +174,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
               sx={{ 
                 mr: 1,
                 color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.7)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
                 borderWidth: '1.5px',
                 fontWeight: 600,
                 px: 2.5,
@@ -178,8 +183,8 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
                 textTransform: 'none',
                 fontSize: '0.95rem',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  borderColor: '#ffffff',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  borderColor: 'rgba(255, 255, 255, 0.8)',
                   borderWidth: '1.5px',
                   transform: 'translateY(-1px)',
                   boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
@@ -196,7 +201,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
               sx={{ 
                 mr: 1,
                 color: '#ffffff',
-                borderColor: 'rgba(255, 255, 255, 0.7)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
                 borderWidth: '1.5px',
                 fontWeight: 600,
                 px: 2.5,
@@ -205,8 +210,8 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
                 textTransform: 'none',
                 fontSize: '0.95rem',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  borderColor: '#ffffff',
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  borderColor: 'rgba(255, 255, 255, 0.8)',
                   borderWidth: '1.5px',
                   transform: 'translateY(-1px)',
                   boxShadow: '0 4px 12px rgba(255, 255, 255, 0.2)',
@@ -226,7 +231,7 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
           sx={{ 
             color: '#ffffff',
             '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              backgroundColor: 'rgba(255, 255, 255, 0.15)',
               transform: 'scale(1.1)',
             },
             transition: 'all 0.3s ease',

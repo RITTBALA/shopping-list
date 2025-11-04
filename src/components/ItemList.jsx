@@ -9,10 +9,12 @@ import {
 } from '@mui/material';
 import Item from './Item';
 import { subscribeToListItems } from '../firebase/firestoreService';
+import { useTheme } from '../context/ThemeContext';
 
 const ItemList = ({ listId }) => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { currentTheme } = useTheme();
 
   useEffect(() => {
     if (!listId) return;
@@ -45,11 +47,11 @@ const ItemList = ({ listId }) => {
       elevation={0} 
       sx={{ 
         overflow: 'hidden',
-        background: 'rgba(255, 255, 255, 0.95)',
+        background: currentTheme.isDark ? currentTheme.cardBackground : 'rgba(255, 255, 255, 0.95)',
         backdropFilter: 'blur(10px)',
         borderRadius: '16px',
-        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
-        border: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: currentTheme.isDark ? '0 8px 32px 0 rgba(0, 0, 0, 0.5)' : '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
+        border: currentTheme.isDark ? '1px solid rgba(255, 255, 255, 0.1)' : '1px solid rgba(255, 255, 255, 0.3)',
       }}
     >
       {items.length === 0 ? (
@@ -58,7 +60,7 @@ const ItemList = ({ listId }) => {
             variant="h6" 
             sx={{ 
               mb: 1,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: currentTheme.gradient,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontWeight: 600,
@@ -66,7 +68,13 @@ const ItemList = ({ listId }) => {
           >
             📝 Your list is empty
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              fontSize: { xs: '0.9rem', sm: '1rem' },
+              color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+            }}
+          >
             Add your first item above to get started!
           </Typography>
         </Box>
@@ -83,13 +91,13 @@ const ItemList = ({ listId }) => {
 
           {/* Divider between purchased and unpurchased */}
           {unpurchasedItems.length > 0 && purchasedItems.length > 0 && (
-            <Divider sx={{ my: 1 }}>
+            <Divider sx={{ my: 1, borderColor: currentTheme.isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.12)' }}>
               <Typography 
                 variant="caption" 
                 sx={{ 
                   fontSize: { xs: '0.75rem', sm: '0.8rem' },
                   fontWeight: 600,
-                  color: '#667eea',
+                  color: currentTheme.primary,
                   px: 2,
                 }}
               >

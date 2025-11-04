@@ -9,15 +9,19 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MapIcon from '@mui/icons-material/Map';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import * as Icons from '@mui/icons-material';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { deleteListWithItems } from '../firebase/firestoreService';
+import { deleteListWithItems, archiveList, reactivateList } from '../firebase/firestoreService';
 import RenameListDialog from './RenameListDialog';
+import ConfirmDialog from './ConfirmDialog';
 import { useTheme } from '../context/ThemeContext';
 
 const ListCard = ({ list }) => {
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { currentTheme } = useTheme();
 
@@ -26,15 +30,17 @@ const ListCard = ({ list }) => {
     setRenameDialogOpen(true);
   };
 
-  const handleDelete = async (event) => {
+  const handleDeleteClick = (event) => {
     event.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this list? This will also delete all items in the list. This action cannot be undone.')) {
-      try {
-        await deleteListWithItems(list.id);
-      } catch (error) {
-        console.error('Error deleting list:', error);
-        alert('Failed to delete list. Please try again.');
-      }
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteListWithItems(list.id);
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      alert('Failed to delete list. Please try again.');
     }
   };
 
@@ -65,6 +71,21 @@ const ListCard = ({ list }) => {
     if (!location) return;
     const query = encodeURIComponent(location);
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
+  };
+
+  // Archive or unarchive the list
+  const handleArchive = async (event) => {
+    event.stopPropagation();
+    try {
+      if (list.status === 'active') {
+        await archiveList(list.id);
+      } else {
+        await reactivateList(list.id);
+      }
+    } catch (error) {
+      console.error('Error archiving/unarchiving list:', error);
+      alert('Failed to archive/unarchive list. Please try again.');
+    }
   };
 
   return (
@@ -152,8 +173,9 @@ const ListCard = ({ list }) => {
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
             minHeight: { xs: 40, sm: 48 },
+            color: '#60a5fa',
             '&:hover': {
-              bgcolor: `${currentTheme.primary}15`,
+              bgcolor: 'rgba(96, 165, 250, 0.1)',
             }
           }}
         >
@@ -161,7 +183,26 @@ const ListCard = ({ list }) => {
         </IconButton>
         <IconButton
           size="small"
-          onClick={handleDelete}
+          onClick={handleArchive}
+          aria-label={list.status === 'active' ? 'archive' : 'unarchive'}
+          sx={{ 
+            minWidth: { xs: 40, sm: 48 }, 
+            minHeight: { xs: 40, sm: 48 },
+            color: '#ff9800',
+            '&:hover': {
+              bgcolor: 'rgba(255, 152, 0, 0.1)',
+            }
+          }}
+        >
+          {list.status === 'active' ? (
+            <ArchiveIcon fontSize="small" />
+          ) : (
+            <UnarchiveIcon fontSize="small" />
+          )}
+        </IconButton>
+        <IconButton
+          size="small"
+          onClick={handleDeleteClick}
           aria-label="delete"
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
@@ -196,6 +237,15 @@ const ListCard = ({ list }) => {
         open={renameDialogOpen}
         onClose={handleCloseRenameDialog}
         list={list}
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete List"
+        message="Are you sure you want to delete this list? This will also delete all items in the list. This action cannot be undone."
+        confirmText="Delete"
       />
     </Card>
   );

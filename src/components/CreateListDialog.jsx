@@ -314,8 +314,11 @@ const CreateListDialog = ({ open, onClose }) => {
               },
               '& .MuiSelect-select': {
                 color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                '& .MuiSvgIcon-root': {
+                  color: currentTheme.isDark && currentTheme.textColor ? currentTheme.textColor : currentTheme.primary,
+                },
               },
-              '& .MuiSvgIcon-root': {
+              '& .MuiSelect-icon': {
                 color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
               },
             }}
@@ -325,6 +328,50 @@ const CreateListDialog = ({ open, onClose }) => {
               value={icon}
               label="Icon"
               onChange={(e) => setIcon(e.target.value)}
+              renderValue={(selected) => {
+                const selectedOption = ICON_OPTIONS.find(opt => opt.value === selected);
+                if (!selectedOption) return selected;
+                const IconComp = selectedOption.icon;
+                return (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <IconComp sx={{ mr: 1, color: `${currentTheme.primary} !important` }} />
+                    <span>{selectedOption.label}</span>
+                  </Box>
+                );
+              }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    bgcolor: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+                    borderRadius: '12px',
+                    mt: 1,
+                    boxShadow: currentTheme.isDark 
+                      ? '0 8px 32px rgba(0,0,0,0.6)' 
+                      : '0 8px 32px rgba(31, 38, 135, 0.15)',
+                    border: currentTheme.isDark 
+                      ? '1px solid rgba(255,255,255,0.1)' 
+                      : '1px solid rgba(102, 126, 234, 0.1)',
+                    '& .MuiMenuItem-root': {
+                      color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                      borderRadius: '8px',
+                      mx: 1,
+                      my: 0.5,
+                      '&:hover': {
+                        bgcolor: currentTheme.isDark ? 'rgba(255,255,255,0.08)' : 'rgba(102, 126, 234, 0.08)',
+                        transform: 'translateX(4px)',
+                        transition: 'all 0.2s ease',
+                      },
+                      '&.Mui-selected': {
+                        bgcolor: currentTheme.isDark ? 'rgba(102, 126, 234, 0.25)' : 'rgba(102, 126, 234, 0.12)',
+                        fontWeight: 600,
+                        '&:hover': {
+                          bgcolor: currentTheme.isDark ? 'rgba(102, 126, 234, 0.35)' : 'rgba(102, 126, 234, 0.18)',
+                        },
+                      },
+                    },
+                  },
+                },
+              }}
             >
               {ICON_OPTIONS.map((option) => {
                 const IconComp = option.icon;
@@ -526,11 +573,13 @@ const CreateListDialog = ({ open, onClose }) => {
                     backgroundColor: option.value,
                     cursor: 'pointer',
                     borderRadius: '12px',
-                    border: color === option.value ? `3px solid ${currentTheme.primary}` : '2px solid rgba(0,0,0,0.1)',
+                    border: color === option.value ? `3px solid ${currentTheme.primary}` : currentTheme.isDark ? '2px solid rgba(255,255,255,0.2)' : '2px solid rgba(0,0,0,0.1)',
                     transition: 'all 0.2s ease',
+                    opacity: currentTheme.isDark ? 0.5 : 1,
                     '&:hover': {
                       transform: 'scale(1.15)',
                       boxShadow: `0 4px 12px ${currentTheme.primary}33`,
+                      opacity: currentTheme.isDark ? 0.75 : 1,
                     },
                   }}
                   onClick={() => setColor(option.value)}

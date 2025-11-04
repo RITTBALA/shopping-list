@@ -10,15 +10,21 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import GroupIcon from '@mui/icons-material/Group';
+import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
+import ConfirmDialog from './ConfirmDialog';
 
 const GroupCard = ({ group, onEdit, onDelete }) => {
   const { currentTheme } = useTheme();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
+  const handleDeleteClick = (e) => {
+    e.stopPropagation();
+    setDeleteDialogOpen(true);
+  };
+
   const handleDelete = () => {
-    if (window.confirm(`Are you sure you want to delete the group "${group.groupName}"? This will not delete any lists, but you won't be able to use this group for new lists.`)) {
-      onDelete(group.id);
-    }
+    onDelete(group.id);
   };
 
   return (
@@ -108,10 +114,7 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
         </IconButton>
         <IconButton
           size="small"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete();
-          }}
+          onClick={handleDeleteClick}
           aria-label="delete"
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
@@ -125,6 +128,15 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
           <DeleteIcon fontSize="small" />
         </IconButton>
       </CardActions>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete Group"
+        message={`Are you sure you want to delete the group "${group.groupName}"? This will not delete any lists, but you won't be able to use this group for new lists.`}
+        confirmText="Delete"
+      />
     </Card>
   );
 };

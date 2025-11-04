@@ -10,6 +10,7 @@ import AddItemForm from '../components/AddItemForm';
 import ItemList from '../components/ItemList';
 import ShareListDialog from '../components/ShareListDialog';
 import RenameListDialog from '../components/RenameListDialog';
+import ConfirmDialog from '../components/ConfirmDialog';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,6 +24,7 @@ const ListPage = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const fetchList = async () => {
     try {
@@ -68,17 +70,19 @@ const ListPage = () => {
     handleMenuClose();
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this list? This will also delete all items in the list. This action cannot be undone.')) {
-      try {
-        await deleteListWithItems(list.id);
-        navigate('/dashboard');
-      } catch (error) {
-        console.error('Error deleting list:', error);
-        alert('Failed to delete list. Please try again.');
-      }
-    }
+  const handleDeleteClick = () => {
+    setDeleteDialogOpen(true);
     handleMenuClose();
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteListWithItems(list.id);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Error deleting list:', error);
+      alert('Failed to delete list. Please try again.');
+    }
   };
 
   const handleExport = async () => {
@@ -148,6 +152,12 @@ const ListPage = () => {
     setShareDialogOpen(true);
   };
 
+  const handleShareClose = () => {
+    setShareDialogOpen(false);
+    // Refresh the list to show updated members/group
+    fetchList();
+  };
+
   const handleRename = () => {
     setRenameDialogOpen(true);
   };
@@ -167,9 +177,9 @@ const ListPage = () => {
         justifyContent: 'center', 
         alignItems: 'center', 
         minHeight: '100vh',
-        background: currentTheme.gradient,
+        background: currentTheme.isDark ? currentTheme.backgroundColor : currentTheme.gradient,
       }}>
-        <CircularProgress sx={{ color: 'white' }} />
+        <CircularProgress sx={{ color: currentTheme.primary }} />
       </Box>
     );
   }
@@ -195,7 +205,7 @@ const ListPage = () => {
   return (
     <Box sx={{ 
       minHeight: '100vh', 
-      background: currentTheme.gradient,
+      background: currentTheme.isDark ? currentTheme.backgroundColor : currentTheme.gradient,
       transition: 'background 0.3s ease',
     }}>
       <ListHeader 
@@ -227,7 +237,11 @@ const ListPage = () => {
           sx: {
             borderRadius: '12px',
             mt: 1,
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
+            background: currentTheme.isDark ? currentTheme.cardBackground : 'white',
+            border: currentTheme.isDark ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+            boxShadow: currentTheme.isDark 
+              ? '0 8px 32px 0 rgba(0, 0, 0, 0.6)' 
+              : '0 8px 32px 0 rgba(31, 38, 135, 0.2)',
           }
         }}
       >
@@ -236,31 +250,36 @@ const ListPage = () => {
           sx={{
             py: 1.5,
             px: 2,
+            color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
             '&:hover': {
-              backgroundColor: 'rgba(102, 126, 234, 0.08)',
+              backgroundColor: currentTheme.isDark 
+                ? 'rgba(102, 126, 234, 0.15)' 
+                : 'rgba(102, 126, 234, 0.08)',
             },
           }}
         >
           {list.status === 'active' ? (
             <>
-              <ArchiveIcon sx={{ mr: 1.5, color: '#667eea' }} fontSize="small" />
+              <ArchiveIcon sx={{ mr: 1.5, color: currentTheme.primary }} fontSize="small" />
               Archive List
             </>
           ) : (
             <>
-              <UnarchiveIcon sx={{ mr: 1.5, color: '#667eea' }} fontSize="small" />
+              <UnarchiveIcon sx={{ mr: 1.5, color: currentTheme.primary }} fontSize="small" />
               Unarchive List
             </>
           )}
         </MenuItem>
         <MenuItem 
-          onClick={handleDelete}
+          onClick={handleDeleteClick}
           sx={{
             py: 1.5,
             px: 2,
             color: '#ef4444',
             '&:hover': {
-              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              backgroundColor: currentTheme.isDark 
+                ? 'rgba(239, 68, 68, 0.15)' 
+                : 'rgba(239, 68, 68, 0.08)',
             },
           }}
         >
@@ -271,7 +290,7 @@ const ListPage = () => {
 
       <ShareListDialog
         open={shareDialogOpen}
-        onClose={() => setShareDialogOpen(false)}
+        onClose={handleShareClose}
         list={list}
       />
 
@@ -279,6 +298,15 @@ const ListPage = () => {
         open={renameDialogOpen}
         onClose={handleRenameClose}
         list={list}
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete List"
+        message="Are you sure you want to delete this list? This will also delete all items in the list. This action cannot be undone."
+        confirmText="Delete"
       />
     </Box>
   );
