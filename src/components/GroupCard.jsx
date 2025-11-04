@@ -93,7 +93,7 @@ const GroupCard = ({ group, onEdit, onDelete }) => {
           👥 {group.memberUids?.length || 0} member{group.memberUids?.length !== 1 ? 's' : ''}
         </Typography>
       </CardContent>
-      <CardActions sx={{ justifyContent: 'flex-end', pt: 0, pb: 1.5, px: 2 }}>
+      <CardActions sx={{ justifyContent: 'center', pt: 0, pb: 1.5, px: 2 }}>
         <IconButton
           size="small"
           onClick={(e) => {

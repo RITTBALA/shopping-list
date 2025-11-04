@@ -101,9 +101,9 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
         <IconButton
           sx={{ 
             mr: { xs: 0.5, sm: 1 },
-            color: '#60a5fa',
+            color: currentTheme.isDark ? '#60a5fa' : currentTheme.primary,
             '&:hover': {
-              backgroundColor: 'rgba(96, 165, 250, 0.15)',
+              backgroundColor: currentTheme.isDark ? 'rgba(96, 165, 250, 0.15)' : `${currentTheme.primary}26`,
               transform: 'scale(1.1)',
             },
             transition: 'all 0.3s ease',

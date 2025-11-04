@@ -173,9 +173,9 @@ const ListCard = ({ list }) => {
           sx={{ 
             minWidth: { xs: 40, sm: 48 }, 
             minHeight: { xs: 40, sm: 48 },
-            color: '#60a5fa',
+            color: currentTheme.isDark ? '#60a5fa' : currentTheme.primary,
             '&:hover': {
-              bgcolor: 'rgba(96, 165, 250, 0.1)',
+              bgcolor: currentTheme.isDark ? 'rgba(96, 165, 250, 0.1)' : `${currentTheme.primary}15`,
             }
           }}
         >
