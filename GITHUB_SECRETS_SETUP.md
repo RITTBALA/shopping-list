@@ -43,3 +43,4 @@ Once all secrets are added, GitHub Actions will automatically:
 ## Note:
 
 Your `.env` file is already in `.gitignore` so it won't be pushed to GitHub. The secrets are securely stored in GitHub and only accessible during the build process.
+
