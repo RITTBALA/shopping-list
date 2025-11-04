@@ -123,8 +123,8 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
             transition: 'all 0.3s ease',
           }}
           onClick={handleDirections}
-          title={list.location ? `Navigate to ${list.location}` : 'No location set'}
-          disabled={!list.location}
+          title={location ? `Navigate to ${location}` : 'No location set'}
+          disabled={!location}
         >
           <MapIcon fontSize={isMobile ? 'small' : 'medium'} />
         </IconButton>
