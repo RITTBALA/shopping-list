@@ -385,11 +385,12 @@ const SettingsPage = () => {
               </ToggleButton>
               <ToggleButton value="waze">
                 <Box
-                  component="img"
-                  src="https://www.waze.com/assets/images/favicon.png"
-                  alt="Waze"
-                  sx={{ width: 20, height: 20, mr: 1 }}
-                />
+                  component="svg"
+                  viewBox="0 0 24 24"
+                  sx={{ width: 20, height: 20, mr: 1, fill: currentTheme.isDark ? '#00d8ff' : '#00a0ff' }}
+                >
+                  <path d="M15.68 6.45c-.88 0-1.67.37-2.23.96-.56-.59-1.35-.96-2.23-.96-1.74 0-3.15 1.41-3.15 3.15 0 .57.15 1.11.42 1.56l-.01.01 4.95 8.37 4.95-8.37-.01-.01c.27-.45.42-.99.42-1.56 0-1.74-1.41-3.15-3.15-3.15zm-4.46 3.9c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm4.46 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/>
+                </Box>
                 Waze
               </ToggleButton>
             </ToggleButtonGroup>
