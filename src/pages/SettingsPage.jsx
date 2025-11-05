@@ -28,32 +28,30 @@ import MapIcon from '@mui/icons-material/Map';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme as useCustomTheme } from '../context/ThemeContext';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
+import { useUserPreferences } from '../hooks/useUserPreferences';
 
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { currentUser, logoutUser } = useAuth();
   const { currentTheme, isDarkMode } = useCustomTheme();
+  const { preferences, updatePreference } = useUserPreferences();
   const [deleting, setDeleting] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [navigationApp, setNavigationApp] = useState('google'); // 'google' or 'waze'
 
-  // Load navigation preference from localStorage
-  useEffect(() => {
-    const savedApp = localStorage.getItem('navigationApp') || 'google';
-    setNavigationApp(savedApp);
-  }, []);
-
-  // Save navigation preference to localStorage
-  const handleNavigationAppChange = (app) => {
-    setNavigationApp(app);
-    localStorage.setItem('navigationApp', app);
+  // Save navigation preference to Firestore
+  const handleNavigationAppChange = async (app) => {
+    try {
+      await updatePreference('navigationApp', app);
+    } catch (error) {
+      console.error('Error saving navigation preference:', error);
+    }
   };
 
   const handleLogout = async () => {
@@ -348,7 +346,7 @@ const SettingsPage = () => {
 
           <Box sx={{ mt: 2, mb: 3, display: 'flex', justifyContent: 'center' }}>
             <ToggleButtonGroup
-              value={navigationApp}
+              value={preferences.navigationApp}
               exclusive
               onChange={(e, newApp) => newApp && handleNavigationAppChange(newApp)}
               sx={{

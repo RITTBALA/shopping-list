@@ -288,6 +288,21 @@ export const getUserById = async (userId) => {
 };
 
 /**
+ * Update user preferences
+ */
+export const updateUserPreferences = async (userId, preferences) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      preferences: preferences
+    });
+  } catch (error) {
+    console.error('Error updating user preferences:', error);
+    throw error;
+  }
+};
+
+/**
  * Delete list and all its items (cascade delete)
  */
 export const deleteListWithItems = async (listId) => {

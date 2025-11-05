@@ -18,12 +18,14 @@ import { deleteListWithItems, archiveList, reactivateList } from '../firebase/fi
 import RenameListDialog from './RenameListDialog';
 import ConfirmDialog from './ConfirmDialog';
 import { useTheme } from '../context/ThemeContext';
+import { useUserPreferences } from '../hooks/useUserPreferences';
 
 const ListCard = ({ list }) => {
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const navigate = useNavigate();
   const { currentTheme } = useTheme();
+  const { preferences } = useUserPreferences();
 
   const handleRename = (event) => {
     event.stopPropagation();
@@ -70,7 +72,7 @@ const ListCard = ({ list }) => {
     event.stopPropagation();
     if (!location) return;
     const query = encodeURIComponent(location);
-    const navigationApp = localStorage.getItem('navigationApp') || 'google';
+    const navigationApp = preferences.navigationApp || 'google';
     
     if (navigationApp === 'waze') {
       // Open Waze

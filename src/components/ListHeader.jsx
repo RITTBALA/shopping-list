@@ -17,13 +17,26 @@ import MapIcon from '@mui/icons-material/Map';
 import * as Icons from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { useUserPreferences } from '../hooks/useUserPreferences';
 
 const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
+  const navigate = useNavigate();
+  const muiTheme = useMuiTheme();
+  const { currentTheme } = useTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md')); // Changed from 'sm' to 'md'
+  const { preferences } = useUserPreferences();
+
+  // Safe defaults for list properties
+  const icon = list?.icon || 'ShoppingCart';
+  const color = list?.color || '#E8F4FD';
+  const listName = list?.listName || '';
+  const location = list?.location || '';
+
   // Open navigation app based on user preference
   const handleDirections = () => {
     if (!location) return;
     const query = encodeURIComponent(location);
-    const navigationApp = localStorage.getItem('navigationApp') || 'google';
+    const navigationApp = preferences.navigationApp || 'google';
     
     if (navigationApp === 'waze') {
       // Open Waze
@@ -33,16 +46,6 @@ const ListHeader = ({ list, onShare, onExport, onRename, onMenuClick }) => {
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
     }
   };
-  // Safe defaults for list properties
-  const icon = list?.icon || 'ShoppingCart';
-  const color = list?.color || '#E8F4FD';
-  const listName = list?.listName || '';
-  const location = list?.location || '';
-        
-  const navigate = useNavigate();
-  const muiTheme = useMuiTheme();
-  const { currentTheme } = useTheme();
-  const isMobile = useMediaQuery(muiTheme.breakpoints.down('md')); // Changed from 'sm' to 'md'
 
   if (!list) return null;
 
