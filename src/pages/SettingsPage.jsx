@@ -16,16 +16,19 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import LockResetIcon from '@mui/icons-material/LockReset';
 import GroupIcon from '@mui/icons-material/Group';
+import MapIcon from '@mui/icons-material/Map';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme as useCustomTheme } from '../context/ThemeContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { deleteUser, updatePassword, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 
@@ -39,6 +42,19 @@ const SettingsPage = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [navigationApp, setNavigationApp] = useState('google'); // 'google' or 'waze'
+
+  // Load navigation preference from localStorage
+  useEffect(() => {
+    const savedApp = localStorage.getItem('navigationApp') || 'google';
+    setNavigationApp(savedApp);
+  }, []);
+
+  // Save navigation preference to localStorage
+  const handleNavigationAppChange = (app) => {
+    setNavigationApp(app);
+    localStorage.setItem('navigationApp', app);
+  };
 
   const handleLogout = async () => {
     try {
@@ -317,29 +333,94 @@ const SettingsPage = () => {
               color: currentTheme.isDark ? currentTheme.textColor : '#667eea',
             }}
           >
-            👥 Groups
+            📍 Navigation
           </Typography>
 
-          <Box sx={{ mt: 2, mb: 3 }}>
-            <Button
-              variant="outlined"
-              startIcon={<GroupIcon />}
-              onClick={() => navigate('/groups')}
-              fullWidth
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              mb: 2,
+              color: currentTheme.isDark ? currentTheme.textSecondary : 'text.secondary',
+            }}
+          >
+            Choose your preferred navigation app for getting directions to list locations
+          </Typography>
+
+          <Box sx={{ mt: 2, mb: 3, display: 'flex', justifyContent: 'center' }}>
+            <ToggleButtonGroup
+              value={navigationApp}
+              exclusive
+              onChange={(e, newApp) => newApp && handleNavigationAppChange(newApp)}
               sx={{
-                py: 1.5,
-                borderRadius: '12px',
-                borderColor: currentTheme.primary,
-                color: currentTheme.primary,
-                fontWeight: 600,
-                '&:hover': {
-                  borderColor: currentTheme.primary,
-                  backgroundColor: `${currentTheme.primary}15`,
+                gap: 2,
+                '& .MuiToggleButton-root': {
+                  px: 3,
+                  py: 1.5,
+                  borderRadius: '12px',
+                  borderColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(102, 126, 234, 0.3)',
+                  color: currentTheme.isDark ? currentTheme.textColor : 'inherit',
+                  '&.Mui-selected': {
+                    background: currentTheme.gradient,
+                    color: 'white',
+                    fontWeight: 600,
+                    '&:hover': {
+                      background: currentTheme.gradient,
+                      filter: 'brightness(0.95)',
+                    },
+                  },
+                  '&:hover': {
+                    backgroundColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(102, 126, 234, 0.05)',
+                  },
                 },
               }}
             >
-              Manage My Groups
-            </Button>
+              <ToggleButton value="google">
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mr: 1,
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="https://www.google.com/images/branding/product/1x/maps_32dp.png"
+                    alt="Google Maps"
+                    sx={{ width: 20, height: 20 }}
+                  />
+                </Box>
+                Google Maps
+              </ToggleButton>
+              <ToggleButton value="waze">
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #00d8ff 0%, #0088ff 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mr: 1,
+                    boxShadow: '0 2px 8px rgba(0, 136, 255, 0.3)',
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="/waze-icon.svg"
+                    alt="Waze"
+                    sx={{ width: 20, height: 20 }}
+                  />
+                </Box>
+                Waze
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
 
           <Divider sx={{ 

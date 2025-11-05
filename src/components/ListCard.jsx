@@ -65,12 +65,20 @@ const ListCard = ({ list }) => {
   // Get the icon component
   const IconComponent = Icons[icon] || Icons.ShoppingCart;
 
-  // Open Google Maps for navigation
+  // Open navigation app based on user preference
   const handleDirections = (event) => {
     event.stopPropagation();
     if (!location) return;
     const query = encodeURIComponent(location);
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
+    const navigationApp = localStorage.getItem('navigationApp') || 'google';
+    
+    if (navigationApp === 'waze') {
+      // Open Waze
+      window.open(`https://waze.com/ul?q=${query}&navigate=yes`, '_blank');
+    } else {
+      // Open Google Maps (default)
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${query}`, '_blank');
+    }
   };
 
   // Archive or unarchive the list
