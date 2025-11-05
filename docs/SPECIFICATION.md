@@ -12,60 +12,73 @@ To provide a real-time, collaborative web application allowing users to create, 
 ### **2. Technology Stack**
 
 * **Frontend:** React (v19, bootstrapped with Vite)
-* **UI Library:** Material-UI (MUI v7)
-* **Routing:** `react-router-dom`
+* **Build Tool:** Vite (v7) with fast HMR and optimized production builds
+* **UI Library:** Material-UI (MUI v7) with Emotion for styling
+* **Routing:** `react-router-dom` (v7)
 * **Backend & Database:** Firebase (Backend-as-a-Service)
     * Firebase Authentication (Email/Password)
     * Firestore Database (NoSQL)
-* **State Management:** React Context API (`AuthContext`, `ThemeContext`)
+* **State Management:** 
+    * React Context API (`AuthContext`, `ThemeContext`)
+    * Custom Hooks (`useUserPreferences`) for user settings management
+* **Deployment:** Firebase Hosting with GitHub Actions CI/CD
 
 ---
 
 ### **3. Core User Features**
 
-#### **3.1 User Authentication**
+#### **3.1 User Authentication & Settings**
 * **Registration:** Users can create an account using an email address and password.
 * **Login:** Registered users can log in using their email and password.
 * **Password Visibility:** Login and Register forms include an 'eye' icon to toggle password visibility.
 * **Global Auth State:** User authentication status and user data are managed globally via `AuthContext`.
 * **Protected Routes:** Core application pages (`/dashboard`, `/list/:listId`, `/groups`, `/settings`) require authentication; unauthenticated users are redirected to `/login`.
-* **Logout:** Users can log out via the Settings page.
+* **User Settings (`/settings`):**
+    * **Change Password:** Users can update their password with re-authentication.
+    * **Navigation App Preference:** Choose between Google Maps or Waze for navigation. Saved to user's Firestore document and syncs across devices.
+    * **Delete Account:** Users can permanently delete their account with confirmation.
+    * **Logout:** Users can log out via the Settings page.
 
 #### **3.2 List Management**
 * **Create List:**
     * Users can create new shopping lists via a dialog accessible from the Dashboard.
     * Requires `listName`, selection of an `icon`, and a `color` from a modern palette (12 options).
+    * Optional `location` field for store address or shopping destination.
     * Option to share immediately with "Just Me," selected individuals (by email), or a pre-defined User Group.
 * **View Lists (Dashboard):**
     * Displays lists in a responsive grid (1-4 columns based on screen size).
     * **Tabs:** Separates lists into "Active" and "Archived" views.
-    * **List Cards:** Show `listName`, `icon` (with themed background tint), member count, creation date, and list `color` background. Cards have hover effects.
+    * **List Cards:** Show `listName`, `icon` (with themed background tint), member count, creation date, location (if set), and list `color` background. Cards have hover effects and navigation button if location is set.
 * **Edit List:**
-    * Accessible via an edit button on the List Card.
-    * Allows changing the `listName` and the list `color`.
+    * Accessible via an edit button on the List Card or List Header.
+    * Allows changing the `listName`, list `color`, and `location`.
+* **Navigate to Location:**
+    * If a list has a `location` set, a map icon button appears on the List Card and List Header.
+    * Opens the user's preferred navigation app (Google Maps or Waze) with directions to the location.
+    * Preference is saved per user account in Firestore.
 * **Archive/Unarchive List:**
     * Lists can be marked as "archived" (sets `isArchived: true`, `status: 'archived'`).
     * Archived lists appear under the "Archived" tab.
-    * Lists can be unarchived (reactivated) from the "Archived" tab.
+    * Lists can be unarchived (reactivated) from the "Archived" tab via the menu.
 * **Delete List:**
-    * Accessible via a delete button on the List Card.
+    * Accessible via a delete button on the List Card or menu.
     * Triggers a **cascade delete**: all items associated with the list (`items` collection) are automatically deleted via a client-side batch write before the list document itself is deleted. Includes a confirmation prompt.
 
 #### **3.3 Item Management (Within a List View - `/list/:listId`)**
 * **Add Item:**
     * Form at the top of the list view.
-    * Fields for `itemName` (required), `quantity` (optional, numeric input with custom +/- buttons, allows decimals), and `unit` (optional, dropdown with common units like pcs, kg, l, box, etc.).
+    * Fields for `itemName` (required), `quantity`/`portions` (optional, text input for flexible portion descriptions like "2kg", "3 bottles"), `category` (optional, dropdown with categories like Produce, Dairy, Meat, etc.), and `group` (optional, for organizing items).
 * **View Items:**
-    * Items displayed in a list format.
-    * Shows `itemName` prominently.
-    * Displays `quantity` and `unit` below the name if provided.
+    * Items displayed in a list format with category grouping.
+    * Shows `itemName` prominently with category color coding.
+    * Displays `portions` and other details below the name if provided.
     * **Real-time Updates:** Item additions, deletions, and status changes reflect instantly for all members viewing the list.
 * **Mark as Purchased:**
     * Clicking an item's checkbox or the item itself toggles its `isPurchased` status.
     * Purchased items are visually distinct (strikethrough) and automatically move to a separate "Purchased" section at the bottom of the list.
 * **Edit Item:**
     * Accessible via an edit icon on each item row.
-    * Opens a dialog allowing modification of `itemName`, `quantity`, and `unit`.
+    * Opens a dialog allowing modification of `itemName`, `portions`, `category`, and `group`.
 * **Delete Item:**
     * Accessible via a delete icon (red) on each item row.
 
@@ -125,9 +138,11 @@ To provide a real-time, collaborative web application allowing users to create, 
 * **User Overview:** Displays a list of all registered users (excluding the admin account), showing their email and the number of lists they've created or are members of. Includes total user count.
 * **List Overview:** Displays a list of *all* shopping lists in the system (belonging to non-deleted users), showing list name, creator email, member count (clickable to view members in a dialog), status (active/archived). Includes total active/archived list counts.
 * **User Management:**
+    * **Delete User Dialog:** Professional Material-UI dialog with warning, detailed explanation of consequences, and confirmation buttons.
     * Ability to "delete" a user. This marks the user document in Firestore as `deleted: true` (does *not* delete Firebase Auth account).
     * Marked users are prevented from logging in (`AuthContext` check).
     * Deleting a user intelligently handles their lists: deletes lists where they are the sole member, transfers ownership if they were the creator of a shared list, and removes them from the `members` array of other lists.
+    * **Success/Error Notifications:** Material-UI Snackbar with styled alerts provides clear feedback on operations.
 * **List Management:** Ability to delete any list directly from the admin panel (triggers cascade delete of items).
 * **Security:** Admin actions are enforced via Firestore Security Rules (`isAdmin()` function checks `request.auth.token.email`).
 
@@ -135,15 +150,56 @@ To provide a real-time, collaborative web application allowing users to create, 
 
 ### **6. Data Models (Firestore)**
 
-* **`users`:** Stores user profile information (email, displayName, `deleted` flag). Doc ID = Firebase Auth `uid`.
-* **`lists`:** Stores list details (name, icon, color, creatorId, members array, status, isArchived, `linkedGroupId`). Auto-generated Doc ID.
-* **`items`:** Stores item details (name, isPurchased, listId, addedBy, quantity, unit). Auto-generated Doc ID.
+* **`users`:** Stores user profile information (email, displayName, `deleted` flag, `preferences` object with `navigationApp`). Doc ID = Firebase Auth `uid`.
+* **`lists`:** Stores list details (listName, icon, color, location, creatorId, members array, status, isArchived, `linkedGroupId`). Auto-generated Doc ID.
+* **`items`:** Stores item details (itemName, isPurchased, listId, addedBy, portions, category, group). Auto-generated Doc ID.
 * **`groups`:** Stores user group definitions (groupName, ownerId, memberUids array). Auto-generated Doc ID.
 
 ---
 
-### **7. Deployment & Access**
+### **7. Project Structure & Organization**
+
+```
+shopping-list/
+├── docs/                          # All documentation files
+│   ├── SPECIFICATION.md           # This file - project specification
+│   ├── FIREBASE_SETUP.md          # Firebase configuration guide
+│   ├── SETUP.md                   # General setup instructions
+│   ├── GITHUB_SECRETS_SETUP.md    # CI/CD secrets configuration
+│   └── AI_DOC.md                  # AI development documentation
+├── src/
+│   ├── components/                # Reusable React components
+│   ├── pages/                     # Route-level page components
+│   ├── context/                   # React Context providers
+│   ├── hooks/                     # Custom React hooks
+│   ├── firebase/                  # Firebase configuration and services
+│   └── assets/                    # Images, icons, static files
+├── scripts/                       # Utility scripts (e.g., createAdmin.js)
+├── public/                        # Public static assets
+├── .github/workflows/             # GitHub Actions CI/CD pipelines
+└── [config files]                 # Vite, ESLint, Firebase configs
+```
+
+**Key Design Patterns:**
+* **Component Composition:** Modular, reusable components with clear responsibilities
+* **Context API:** Global state management for auth and theme
+* **Custom Hooks:** Encapsulated logic (e.g., `useUserPreferences`) for reusability
+* **Service Layer:** `firestoreService.js` centralizes all Firestore operations
+* **Protected Routes:** `ProtectedRoute` component guards authenticated pages
+* **Real-time Subscriptions:** Firestore `onSnapshot` for live data updates
+
+---
+
+### **8. Deployment & Access**
 
 * **Platform:** Web Application.
-* **Access:** Accessible via a web browser URL.
-* **Development Access:** Can be run locally and accessed on the local network (e.g., from a phone) by running the dev server with the `--host` flag.
+* **Production Deployment:** Deployed to Firebase Hosting with automatic deployment via GitHub Actions on push to `main` branch.
+* **Live URL:** `https://easyshopping-list.web.app`
+* **CI/CD Pipeline:** 
+    * GitHub Actions workflow automatically builds and deploys on commits to main.
+    * Pull request preview deployments for testing before merge.
+* **Development Access:** 
+    * Can be run locally with `npm run dev` using Vite dev server.
+    * Accessible on local network (e.g., from a phone) with the `--host` flag (enabled by default).
+    * Hot Module Replacement (HMR) for instant updates during development.
+* **Environment Configuration:** Uses environment variables (`.env` file) for Firebase configuration, supporting different environments (dev/prod).

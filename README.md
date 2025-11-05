@@ -87,12 +87,20 @@ shopping-list/
 │   ├── App.jsx            # Main App component with routing
 │   ├── index.css          # Base CSS
 │   └── main.jsx           # Application entry point
+├── docs/                  # Documentation files
+│   ├── FIREBASE_SETUP.md          # Firebase setup instructions
+│   ├── SETUP.md                   # General setup guide
+│   ├── SPECIFICATION.md           # Project specification
+│   ├── AI_DOC.md                  # AI development documentation
+│   ├── GITHUB_SECRETS_SETUP.md    # GitHub secrets configuration
+│   ├── Shopping List with AI.docx # Project documentation (Word)
+│   └── Shopping List with AI.pdf  # Project documentation (PDF)
+├── scripts/               # Utility scripts
+│   └── createAdmin.js             # Admin account creation script
 ├── eslint.config.js       # ESLint configuration
 ├── index.html             # HTML template
 ├── package.json           # Dependencies and scripts
-├── vite.config.js         # Vite configuration
-├── FIREBASE_SETUP.md      # Firebase setup instructions
-└── SETUP.md               # General setup guide
+└── vite.config.js         # Vite configuration
 
 ```
 
@@ -103,12 +111,13 @@ shopping-list/
 - Node.js (v16 or higher)
 - npm or yarn
 - Firebase account
+- Firebase CLI (for deployment) - `npm install -g firebase-tools`
 
 ### Installation
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/RITTBALA/shopping-list.git
 cd shopping-list
 ```
 
@@ -121,15 +130,12 @@ npm install
    - Create a Firebase project at [Firebase Console](https://console.firebase.google.com)
    - Enable Authentication (Email/Password)
    - Create a Firestore database
-   - Copy your Firebase configuration to `src/firebase/firebase.js`
-   - See `FIREBASE_SETUP.md` for detailed instructions
+   - Add your Firebase configuration (see Deployment options below)
+   - See `docs/FIREBASE_SETUP.md` for detailed instructions
 
-4. Start the development server:
-```bash
-npm run dev
-```
-
-5. Open your browser and navigate to the local development URL (typically `http://localhost:5173`)
+4. Choose your deployment option:
+   - **For Production:** See [Deploy to Firebase Hosting](#option-1-deploy-to-firebase-hosting-recommended)
+   - **For Development:** See [Run Locally](#option-2-run-locally)
 
 ### Available Scripts
 
@@ -137,6 +143,77 @@ npm run dev
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm run create-admin` - Create admin account (admin@admin.com / admin)
+
+## Deployment
+
+### Option 1: Deploy to Firebase Hosting (Recommended)
+
+The app is configured for automatic deployment to Firebase Hosting.
+
+**Initial Setup:**
+
+1. Install Firebase CLI globally:
+```bash
+npm install -g firebase-tools
+```
+
+2. Login to Firebase:
+```bash
+firebase login
+```
+
+3. Initialize Firebase in your project (if not already done):
+```bash
+firebase init hosting
+```
+   - Select your Firebase project
+   - Set `dist` as your public directory
+   - Configure as a single-page app: Yes
+   - Don't overwrite existing files
+
+4. Build and deploy:
+```bash
+npm run build
+firebase deploy
+```
+
+Your app will be live at: `https://your-project-id.web.app`
+
+**Automatic Deployment with GitHub Actions:**
+
+This project includes GitHub Actions workflows for automatic deployment:
+- Push to `main` branch → automatic deployment to production
+- Pull requests → preview deployments for testing
+
+See `docs/GITHUB_SECRETS_SETUP.md` for configuring GitHub secrets.
+
+### Option 2: Run Locally
+
+For local development and testing:
+
+1. Create a `.env` file in the root directory with your Firebase config:
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
+```
+
+2. Start the development server:
+```bash
+npm run dev
+```
+
+3. Open your browser at `http://localhost:5173`
+
+The local server includes:
+- Hot Module Replacement (HMR) for instant updates
+- Host access for testing on mobile devices on the same network
+- Full Firebase functionality
 
 ## Firebase Setup
 
@@ -145,7 +222,7 @@ The app requires Firebase for:
 - **Firestore:** Real-time database for lists, items, and groups
 - **Security Rules:** Proper access control
 
-See `FIREBASE_SETUP.md` for detailed configuration instructions.
+See `docs/FIREBASE_SETUP.md` for detailed configuration instructions.
 
 ## Key Features Explained
 
@@ -187,6 +264,6 @@ This project is private and for educational purposes.
 ## Support
 
 For setup issues or questions, refer to:
-- `SETUP.md` - General setup guide
-- `FIREBASE_SETUP.md` - Firebase configuration
+- `docs/SETUP.md` - General setup guide
+- `docs/FIREBASE_SETUP.md` - Firebase configuration
 - Create an issue in the repository
