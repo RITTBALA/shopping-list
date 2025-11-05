@@ -333,7 +333,7 @@ const SettingsPage = () => {
               color: currentTheme.isDark ? currentTheme.textColor : '#667eea',
             }}
           >
-            �️ Navigation
+            📍 Navigation
           </Typography>
 
           <Typography 
@@ -397,7 +397,7 @@ const SettingsPage = () => {
               color: currentTheme.isDark ? currentTheme.textColor : '#667eea',
             }}
           >
-            �👥 Groups
+             Groups
           </Typography>
 
           <Box sx={{ mt: 2, mb: 3 }}>
