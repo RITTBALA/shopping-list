@@ -376,20 +376,48 @@ const SettingsPage = () => {
             >
               <ToggleButton value="google">
                 <Box
-                  component="img"
-                  src="https://www.google.com/images/branding/product/1x/maps_32dp.png"
-                  alt="Google Maps"
-                  sx={{ width: 20, height: 20, mr: 1 }}
-                />
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #4285F4 0%, #34A853 25%, #FBBC05 50%, #EA4335 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mr: 1,
+                    boxShadow: '0 2px 8px rgba(66, 133, 244, 0.3)',
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="https://www.google.com/images/branding/product/1x/maps_32dp.png"
+                    alt="Google Maps"
+                    sx={{ width: 20, height: 20 }}
+                  />
+                </Box>
                 Google Maps
               </ToggleButton>
               <ToggleButton value="waze">
                 <Box
-                  component="img"
-                  src="/waze-icon.svg"
-                  alt="Waze"
-                  sx={{ width: 20, height: 20, mr: 1 }}
-                />
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #00d8ff 0%, #0088ff 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mr: 1,
+                    boxShadow: '0 2px 8px rgba(0, 136, 255, 0.3)',
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="/waze-icon.svg"
+                    alt="Waze"
+                    sx={{ width: 20, height: 20 }}
+                  />
+                </Box>
                 Waze
               </ToggleButton>
             </ToggleButtonGroup>
