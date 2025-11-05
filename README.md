@@ -1,5 +1,7 @@
 # Shopping List App
 
+🌐 **Live Demo:** [https://easyshopping-list.web.app](https://easyshopping-list.web.app)
+
 A modern, collaborative shopping list application built with React, Firebase, and Material-UI. Create, share, and manage shopping lists with your family and friends in real-time.
 
 ## Features
