@@ -352,6 +352,7 @@ const SettingsPage = () => {
               exclusive
               onChange={(e, newApp) => newApp && handleNavigationAppChange(newApp)}
               sx={{
+                gap: 2,
                 '& .MuiToggleButton-root': {
                   px: 3,
                   py: 1.5,
@@ -382,44 +383,6 @@ const SettingsPage = () => {
                 Waze
               </ToggleButton>
             </ToggleButtonGroup>
-          </Box>
-
-          <Divider sx={{ 
-            my: 3,
-            borderColor: currentTheme.isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.12)',
-          }} />
-
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              mb: 2,
-              fontWeight: 600,
-              color: currentTheme.isDark ? currentTheme.textColor : '#667eea',
-            }}
-          >
-             Groups
-          </Typography>
-
-          <Box sx={{ mt: 2, mb: 3 }}>
-            <Button
-              variant="outlined"
-              startIcon={<GroupIcon />}
-              onClick={() => navigate('/groups')}
-              fullWidth
-              sx={{
-                py: 1.5,
-                borderRadius: '12px',
-                borderColor: currentTheme.primary,
-                color: currentTheme.primary,
-                fontWeight: 600,
-                '&:hover': {
-                  borderColor: currentTheme.primary,
-                  backgroundColor: `${currentTheme.primary}15`,
-                },
-              }}
-            >
-              Manage My Groups
-            </Button>
           </Box>
 
           <Divider sx={{ 
