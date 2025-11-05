@@ -21,9 +21,12 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
   List,
   ListItem,
   ListItemText,
+  Alert,
+  Snackbar,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -46,6 +49,9 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [membersDialogOpen, setMembersDialogOpen] = useState(false);
   const [selectedListMembers, setSelectedListMembers] = useState([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     // Check if user is admin
@@ -133,58 +139,86 @@ const AdminPage = () => {
     }
   };
 
-  const handleDeleteUser = async (userId, userEmail) => {
-    if (window.confirm(`Are you sure you want to delete user "${userEmail}"? This will remove them from all lists and delete lists where they are the only member. This action cannot be undone.`)) {
-      try {
-        // Get all lists where this user is involved
-        const userLists = allLists.filter(list => 
-          list.creatorId === userId || list.members?.includes(userId)
-        );
+  const handleDeleteUserClick = (userId, userEmail) => {
+    setUserToDelete({ id: userId, email: userEmail });
+    setDeleteDialogOpen(true);
+  };
 
-        for (const list of userLists) {
-          const listRef = doc(db, 'lists', list.id);
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    const { id: userId, email: userEmail } = userToDelete;
+    setDeleteDialogOpen(false);
+
+    try {
+      // Get all lists where this user is involved
+      const userLists = allLists.filter(list => 
+        list.creatorId === userId || list.members?.includes(userId)
+      );
+
+      for (const list of userLists) {
+        const listRef = doc(db, 'lists', list.id);
+        
+        // Check if user is the only member (creator + members array)
+        const allMembers = [list.creatorId, ...(list.members || [])];
+        const uniqueMembers = [...new Set(allMembers)]; // Remove duplicates
+        
+        if (uniqueMembers.length === 1 && uniqueMembers[0] === userId) {
+          // User is the only member, delete the entire list
+          await deleteListWithItems(list.id);
+        } else {
+          // List has other members, just remove this user
+          const updatedMembers = (list.members || []).filter(uid => uid !== userId);
           
-          // Check if user is the only member (creator + members array)
-          const allMembers = [list.creatorId, ...(list.members || [])];
-          const uniqueMembers = [...new Set(allMembers)]; // Remove duplicates
-          
-          if (uniqueMembers.length === 1 && uniqueMembers[0] === userId) {
-            // User is the only member, delete the entire list
-            await deleteListWithItems(list.id);
+          // If the deleted user was the creator, transfer ownership to the first remaining member
+          if (list.creatorId === userId) {
+            const newCreator = updatedMembers[0];
+            await updateDoc(listRef, {
+              creatorId: newCreator,
+              members: updatedMembers
+            });
           } else {
-            // List has other members, just remove this user
-            const updatedMembers = (list.members || []).filter(uid => uid !== userId);
-            
-            // If the deleted user was the creator, transfer ownership to the first remaining member
-            if (list.creatorId === userId) {
-              const newCreator = updatedMembers[0];
-              await updateDoc(listRef, {
-                creatorId: newCreator,
-                members: updatedMembers
-              });
-            } else {
-              // Just remove from members
-              await updateDoc(listRef, {
-                members: updatedMembers
-              });
-            }
+            // Just remove from members
+            await updateDoc(listRef, {
+              members: updatedMembers
+            });
           }
         }
-
-        // Mark the user as deleted in Firestore (since we can't delete from Auth client-side)
-        await updateDoc(doc(db, 'users', userId), {
-          deleted: true,
-          deletedAt: new Date().toISOString()
-        });
-        
-        alert('User marked as deleted successfully! They will no longer be able to access the app.');
-        // Refresh data
-        fetchAdminData();
-      } catch (error) {
-        console.error('Error deleting user:', error);
-        alert('Failed to delete user. Error: ' + error.message);
       }
+
+      // Mark the user as deleted in Firestore (since we can't delete from Auth client-side)
+      await updateDoc(doc(db, 'users', userId), {
+        deleted: true,
+        deletedAt: new Date().toISOString()
+      });
+      
+      setSnackbar({
+        open: true,
+        message: `User "${userEmail}" has been successfully deleted and removed from all lists.`,
+        severity: 'success'
+      });
+      
+      // Refresh data
+      fetchAdminData();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      setSnackbar({
+        open: true,
+        message: `Failed to delete user: ${error.message}`,
+        severity: 'error'
+      });
+    } finally {
+      setUserToDelete(null);
     }
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setUserToDelete(null);
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   const getUserEmail = (userId) => {
@@ -331,7 +365,7 @@ const AdminPage = () => {
                         startIcon={<DeleteIcon />}
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteUser(user.id, user.email);
+                          handleDeleteUserClick(user.id, user.email);
                         }}
                         sx={{
                           bgcolor: '#ff4444',
@@ -444,6 +478,135 @@ const AdminPage = () => {
           </List>
         </DialogContent>
       </Dialog>
+
+      {/* Delete User Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
+          }
+        }}
+      >
+        <DialogTitle 
+          sx={{ 
+            bgcolor: '#ff4444', 
+            color: 'white', 
+            fontWeight: 'bold',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
+          }}
+        >
+          <DeleteIcon />
+          Delete User Confirmation
+        </DialogTitle>
+        <DialogContent sx={{ mt: 3 }}>
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            This action cannot be undone!
+          </Alert>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Are you sure you want to delete the following user?
+          </Typography>
+          <Paper 
+            elevation={0} 
+            sx={{ 
+              p: 2, 
+              bgcolor: '#f5f5f5', 
+              borderRadius: 1,
+              border: '2px solid #ff4444'
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1a1a2e' }}>
+              📧 {userToDelete?.email}
+            </Typography>
+          </Paper>
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              This will:
+            </Typography>
+            <List dense>
+              <ListItem>
+                <ListItemText 
+                  primary="• Remove the user from all shared lists"
+                  primaryTypographyProps={{ variant: 'body2' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText 
+                  primary="• Delete lists where they are the only member"
+                  primaryTypographyProps={{ variant: 'body2' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText 
+                  primary="• Transfer ownership of their lists to other members"
+                  primaryTypographyProps={{ variant: 'body2' }}
+                />
+              </ListItem>
+              <ListItem>
+                <ListItemText 
+                  primary="• Mark their account as deleted"
+                  primaryTypographyProps={{ variant: 'body2' }}
+                />
+              </ListItem>
+            </List>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, gap: 1 }}>
+          <Button 
+            onClick={handleCloseDeleteDialog}
+            variant="outlined"
+            sx={{ 
+              borderColor: '#ccc',
+              color: '#666',
+              '&:hover': { 
+                borderColor: '#999',
+                bgcolor: '#f5f5f5'
+              }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDeleteUser}
+            variant="contained"
+            color="error"
+            startIcon={<DeleteIcon />}
+            sx={{
+              bgcolor: '#ff4444',
+              '&:hover': { bgcolor: '#cc0000' }
+            }}
+          >
+            Delete User
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Success/Error Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={handleCloseSnackbar} 
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ 
+            width: '100%',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            fontSize: '1rem'
+          }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
