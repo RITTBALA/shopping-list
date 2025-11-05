@@ -380,12 +380,12 @@ const SettingsPage = () => {
                     width: 32,
                     height: 32,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #4285F4 0%, #34A853 25%, #FBBC05 50%, #EA4335 100%)',
+                    background: 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     mr: 1,
-                    boxShadow: '0 2px 8px rgba(66, 133, 244, 0.3)',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                   }}
                 >
                   <Box
