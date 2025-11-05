@@ -48,7 +48,7 @@ export const COLOR_THEMES = {
     isDark: false,
   },
   midnight: {
-    name: 'Midnight Blue',
+    name: 'Dark Theme',
     gradient: 'linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%)',
     primary: '#4A00E0',
     secondary: '#8E2DE2',

@@ -1,14 +1,15 @@
-import { useState } from 'react';
 import {
   Box,
   Paper,
   Typography,
   Backdrop,
+  Fade,
+  Zoom,
 } from '@mui/material';
 import { useTheme } from '../context/ThemeContext';
 
 const ThemeSwitcher = ({ open, onClose }) => {
-  const { changeColorTheme, availableThemes, colorTheme, currentTheme } = useTheme();
+  const { changeColorTheme, availableThemes, colorTheme } = useTheme();
 
   const handleColorThemeChange = (themeKey) => {
     changeColorTheme(themeKey);
@@ -18,33 +19,39 @@ const ThemeSwitcher = ({ open, onClose }) => {
   return (
     <>
       {/* Backdrop for color picker */}
-      <Backdrop
-        open={open}
-        onClick={onClose}
-        sx={{ 
-          zIndex: 1299,
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        }}
-      />
+      <Fade in={open} timeout={300}>
+        <Backdrop
+          open={open}
+          onClick={onClose}
+          sx={{ 
+            zIndex: 1299,
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          }}
+        />
+      </Fade>
 
       {/* Color Picker Panel */}
-      {open && (
-        <Paper
-          onClick={(e) => e.stopPropagation()}
-          sx={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            p: 3,
-            borderRadius: '20px',
-            zIndex: 1300,
-            background: 'rgba(255, 255, 255, 0.98)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.3)',
-            minWidth: 280,
-          }}
-        >
+      <Box
+        sx={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 1300,
+        }}
+      >
+        <Zoom in={open} timeout={400} style={{ transitionDelay: open ? '100ms' : '0ms' }}>
+          <Paper
+            onClick={(e) => e.stopPropagation()}
+            sx={{
+              p: 3,
+              borderRadius: '20px',
+              background: 'rgba(255, 255, 255, 0.98)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.3)',
+              minWidth: 280,
+            }}
+          >
           <Typography 
             variant="subtitle2" 
             sx={{ 
@@ -94,7 +101,8 @@ const ThemeSwitcher = ({ open, onClose }) => {
             ))}
           </Box>
         </Paper>
-      )}
+        </Zoom>
+      </Box>
     </>
   );
 };

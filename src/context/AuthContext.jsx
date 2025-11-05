@@ -4,7 +4,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth';
 import { auth } from '../firebase/firebase';
 import { createUserDocument } from '../firebase/firestoreService';
@@ -74,6 +76,38 @@ export const AuthProvider = ({ children }) => {
   };
 
   /**
+   * Sign in with Google
+   */
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
+      
+      // Check if user is marked as deleted
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists() && userDoc.data().deleted) {
+        // Sign out immediately
+        await signOut(auth);
+        throw new Error('This account has been deleted. Please contact support.');
+      }
+      
+      // Create or update user document in Firestore
+      await createUserDocument(user.uid, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL
+      });
+      
+      return user;
+    } catch (error) {
+      console.error('Error signing in with Google:', error);
+      throw error;
+    }
+  };
+
+  /**
    * Logout the current user
    */
   const logoutUser = async () => {
@@ -112,6 +146,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     registerUser,
     loginUser,
+    signInWithGoogle,
     logoutUser
   }), [currentUser, loading]);
 
