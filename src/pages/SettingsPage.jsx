@@ -375,11 +375,21 @@ const SettingsPage = () => {
               }}
             >
               <ToggleButton value="google">
-                <MapIcon sx={{ mr: 1 }} />
+                <Box
+                  component="img"
+                  src="https://www.google.com/images/branding/product/1x/maps_32dp.png"
+                  alt="Google Maps"
+                  sx={{ width: 20, height: 20, mr: 1 }}
+                />
                 Google Maps
               </ToggleButton>
               <ToggleButton value="waze">
-                <MapIcon sx={{ mr: 1 }} />
+                <Box
+                  component="img"
+                  src="https://www.waze.com/assets/images/favicon.png"
+                  alt="Waze"
+                  sx={{ width: 20, height: 20, mr: 1 }}
+                />
                 Waze
               </ToggleButton>
             </ToggleButtonGroup>
